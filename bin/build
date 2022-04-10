@@ -1,0 +1,15 @@
+#!/bin/bash
+
+mdfind -onlyin src/com/marcel java > sources.txt
+
+javac @sources.txt -d tmp/
+
+cd tmp && jar cfm vne.jar "../Visual Novel Engine.mf" com/marcel/*.class
+
+cd ..
+
+cp tmp/vne.jar "build/Visual Novel Engine.jar"
+
+#rm -rf build/vne.app
+
+#jpackage --name vne --input tmp --main-jar vne.jar --main-class com.marcel.Main --type app-image -d build
