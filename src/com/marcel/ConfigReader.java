@@ -4,6 +4,9 @@ import static com.marcel.Util.puts;
 import static com.marcel.ConfigTokens.*;
 
 import java.awt.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Dictionary;
@@ -784,7 +787,22 @@ public class ConfigReader {
 
 
 
-    public static void WriteConfigFile(String filename, List<ConfigObject> objectList) {}
+    public static void WriteConfigFile(String filename, List<ConfigObject> objectList)
+    {
+        File yourFile = new File(filename);
+        try {
+            yourFile.createNewFile(); // if file already exists will do nothing
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        try (PrintWriter out = new PrintWriter(filename)) {
+            out.println(TokensToString(objectList));
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     public static void PrintTokens(List<ConfigObject> objectList)
     {
@@ -793,18 +811,35 @@ public class ConfigReader {
             ConfigObject obj = objectList.get(i);
             if (obj instanceof ConfigLabelObject)
             {
-                PrintToken(obj, 0, i == 0);
+                puts(PrintToken(obj, 0, i == 0));
             }
         }
     }
 
-    private static void PrintToken(ConfigObject obj, int indentlevel, boolean firstLabel)
+    public static String TokensToString(List<ConfigObject> objectList)
     {
+        StringBuilder temp = new StringBuilder();
+        for (int i = 0; i < objectList.size(); i++)
+        {
+            ConfigObject obj = objectList.get(i);
+            if (obj instanceof ConfigLabelObject)
+            {
+                temp.append(PrintToken(obj, 0, i == 0) + "\n");
+            }
+        }
+
+        return temp.toString();
+    }
+
+    private static String PrintToken(ConfigObject obj, int indentlevel, boolean firstLabel)
+    {
+        StringBuilder temp = new StringBuilder();
+
         if (obj instanceof ConfigVariableObject)
         {
-            puts(
+            temp.append(
                     MessageFormat.format(
-                            "{0}{1} = {2}",
+                            "{0}{1} = {2}\n",
                             "\t".repeat(indentlevel),
                             ((ConfigVariableObject) obj).name,
                             ((ConfigVariableObject) obj).variable
@@ -814,18 +849,18 @@ public class ConfigReader {
         else if (obj instanceof ConfigLabelObject)
         {
             if (!firstLabel)
-                puts("");
+                temp.append("\n");
 
-            puts(
+            temp.append(
                     MessageFormat.format(
-                            "{0}[{1}]\n{0}'{'",
+                            "{0}[{1}]\n{0}'{'\n",
                             "\t".repeat(indentlevel),
                             ((ConfigLabelObject) obj).label
                     )
             );
 
             //for (ConfigObject currentObject : ((ConfigLabelObject) obj).objects)
-                //PrintToken(currentObject, indentlevel + 1);
+            //PrintToken(currentObject, indentlevel + 1);
 
             boolean labelBefore = false;
 
@@ -833,25 +868,29 @@ public class ConfigReader {
                 ConfigObject currentObject = ((ConfigLabelObject) obj).objects[i];
                 if (currentObject instanceof ConfigVariableObject)
                     if (labelBefore)
-                        puts("");
+                        temp.append("\n");
 
-                PrintToken(currentObject, indentlevel + 1, i == 0);
+                temp.append(PrintToken(currentObject, indentlevel + 1, i == 0));
 
-                if (currentObject instanceof ConfigLabelObject)
-                    labelBefore = true;
-                else
-                    labelBefore = false;
+                labelBefore = currentObject instanceof ConfigLabelObject;
             }
 
 
-            puts(
+            temp.append(
                     MessageFormat.format(
-                            "{0}'}'",
+                            "{0}'}'\n",
                             "\t".repeat(indentlevel)
                     )
             );
         }
+
+        return temp.toString();
     }
+
+
+
+
+
 }
 
 /*objectList.add(

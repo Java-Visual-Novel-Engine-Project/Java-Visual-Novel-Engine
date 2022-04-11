@@ -13,11 +13,13 @@ public class Main {
 
         ConfigReader.PrintTokens(data);
 
-        String path = ((ConfigTokens.ConfigVariableString)ConfigReader.GetConfigValue("Settings.Paths.Settings_File", data, true)).value;
-        puts("SETTINGS PATH : \"" + path + "\".");
-        puts(ConfigReader.GetConfigValue("Settings.Array", data, true));
-        puts(ConfigReader.GetConfigValue("Settings.Settings_Path", data, false));
-        puts(ConfigReader.GetConfigValue("Settings.Settings_Path", data, true));
+        //String path = ((ConfigTokens.ConfigVariableString)ConfigReader.GetConfigValue("Settings.Paths.Settings_File", data, true)).value;
+        //puts("SETTINGS PATH : \"" + path + "\".");
+        //puts(ConfigReader.GetConfigValue("Settings.Array", data, true));
+        //puts(ConfigReader.GetConfigValue("Settings.Settings_Path", data, false));
+        //puts(ConfigReader.GetConfigValue("Settings.Settings_Path", data, true));
+
+        //ConfigReader.WriteConfigFile("test.cfg", data);
     }
 }
 
