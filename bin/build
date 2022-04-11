@@ -10,6 +10,8 @@ cd ..
 
 cp tmp/vne.jar "build/Visual Novel Engine.jar"
 
+cd build && java -jar "Visual Novel Engine.jar"
+
 #rm -rf build/vne.app
 
 #jpackage --name vne --input tmp --main-jar vne.jar --main-class com.marcel.Main --type app-image -d build

@@ -7,9 +7,7 @@ public class ConfigTokens {
     public static ConfigTokens instance = new ConfigTokens();
 
 
-    class ConfigObject {
-
-    }
+    class ConfigObject {}
 
     class ConfigLabelObject extends ConfigObject {
         public String label;
@@ -19,7 +17,6 @@ public class ConfigTokens {
             this.label = label;
             this.objects = objects;
         }
-
     }
 
     class ConfigVariableObject extends ConfigObject {
@@ -126,7 +123,5 @@ public class ConfigTokens {
         }
     }
 
-    private class ParserToken {
-
-    }
+    private class ParserToken {}
 }
