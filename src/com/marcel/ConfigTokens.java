@@ -46,7 +46,7 @@ public class ConfigTokens {
                 for (int i = 0; i < ((ConfigVariableArray) this).values.length; i++) {
                     sb.append(((ConfigVariableArray) this).values[i]);
                     if (i != ((ConfigVariableArray) this).values.length - 1)
-                    sb.append(", ");
+                        sb.append(", ");
                 }
 
                 sb.append("]");
@@ -78,6 +78,56 @@ public class ConfigTokens {
             return "<IDK>";
         }
 
+
+        public String genericToString() {
+            if (this instanceof ConfigVariableString)
+                return  ((ConfigVariableString) this).GetString();
+            else if (this instanceof ConfigVariableInteger)
+                return ((ConfigVariableInteger) this).value + "";
+            else if (this instanceof ConfigVariableDouble)
+                return ((ConfigVariableDouble) this).value + "";
+            else if (this instanceof ConfigVariableBoolean)
+                return ((ConfigVariableBoolean) this).value ? "true" : "false";
+            else if (this instanceof ConfigVariableArray)
+            {
+                StringBuilder sb = new StringBuilder();
+                sb.append("[");
+
+                for (int i = 0; i < ((ConfigVariableArray) this).values.length; i++) {
+                    sb.append(((ConfigVariableArray) this).values[i]);
+                    if (i != ((ConfigVariableArray) this).values.length - 1)
+                        sb.append(", ");
+                }
+
+                sb.append("]");
+                return sb.toString();
+            }
+            else if (this instanceof ConfigVariableDictionary)
+            {
+                StringBuilder sb = new StringBuilder();
+                sb.append("{");
+
+                ConfigVariableDictionary dict = ((ConfigVariableDictionary) this);
+                for (int i = 0; i < dict.values.size(); i++) {
+                    sb.append(dict.values.get(i).name);
+                    sb.append(" = ");
+                    sb.append(dict.values.get(i).variable);
+                    if (i != (dict.values.size() - 1))
+                        sb.append(", ");
+                }
+
+                sb.append("}");
+                return sb.toString();
+            }
+            else if (this instanceof ConfigVariableReference)
+            {
+                return "$" + ((ConfigVariableReference) this).variableName;
+            }
+
+
+            return "<Unknown>";
+        }
+
     }
 
     public static class ConfigVariableReference extends ConfigVariableObjectType {
@@ -106,6 +156,38 @@ public class ConfigTokens {
 
     public static class ConfigVariableString extends ConfigVariableObjectType {
         public String value;
+
+        public void SetString(String value)
+        {
+            this.value = value;
+        }
+
+        public String GetString()
+        {
+            StringBuilder builder = new StringBuilder();
+
+            for (int i = 0; i < value.length(); i++)
+            {
+                if (value.charAt(i) == '\\')
+                {
+                    if (i < value.length() - 1)
+                    {
+                        builder.append(value.charAt(i+1));
+                        i++;
+                    }
+                }
+                else
+                    builder.append(value.charAt(i));
+            }
+
+
+            return builder.toString();
+        }
+
+        public String GetOriginalString()
+        {
+            return value;
+        }
 
         public ConfigVariableString(String value) {
             this.value = value;

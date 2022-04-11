@@ -15,6 +15,7 @@ import com.marcel.ConfigErrors.*;
 import static com.marcel.ConfigTokens.*;
 import static com.marcel.Util.puts;
 
+
 public class ConfigReader {
 
     public static List<ConfigObject> ReadConfigFile(String filename) throws Exception {
@@ -222,7 +223,7 @@ public class ConfigReader {
             if (current == '[') {
                 int labelEndPosition = data.indexOf(']', cursorPosition);
 
-                if (labelEndPosition == -1 || labelEndPosition > data.indexOf('[', cursorPosition + 1))
+                if (labelEndPosition == -1 || ( labelEndPosition > data.indexOf('[', cursorPosition + 1) && data.indexOf('[', cursorPosition + 1) != -1))
                     throw new UnterminatedLabelHeadException("] was not found!", GetContext(data, cursorPosition));
 
                 String label = data.substring(
@@ -437,6 +438,7 @@ public class ConfigReader {
                         }
                         cursorPosition++;
                     }
+
                     if (cursorPosition >= contentSize)
                         throw new UnterminatedArrayException("] was not found!", GetContext(data, startBracket));
 
