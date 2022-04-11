@@ -1,5 +1,7 @@
 package com.marcel;
 
+import static com.marcel.Util.*;
+
 import java.awt.*;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -24,7 +26,7 @@ public class ConfigReader {
            binData = Files.readAllBytes(path);
 
         } catch (IOException exception) {
-            System.out.println("File Not Found!");
+            puts("File Not Found!");
             return null;
         }
 
@@ -121,7 +123,7 @@ public class ConfigReader {
                         labelEndPosition
                 );
 
-                System.out.println();
+                //puts();
 
                 cursorPosition = labelEndPosition + 1;
 
@@ -163,8 +165,8 @@ public class ConfigReader {
                     cursorPosition++;
                 }
 
-                System.out.println("LABEL: \""+ label + "\"");
-                System.out.println("BRACKET DATA:\n<" + data.substring(startBracket + 1, endBracket) + ">\n");
+                puts("LABEL: \""+ label + "\"");
+                puts("BRACKET DATA:\n<" + data.substring(startBracket + 1, endBracket) + ">\n");
 
                 List<ConfigTokens.ConfigObject> tempList = ReadConfigString(data.substring(startBracket + 1, endBracket));
                 ConfigTokens.ConfigLabelObject labelObject = CT.new ConfigLabelObject(label, tempList.toArray(new ConfigTokens.ConfigObject[0]));
@@ -187,7 +189,7 @@ public class ConfigReader {
                 int varNameStart = cursorPosition;
 
                 String varName = data.substring(varNameStart, varNameEnd+1);
-                System.out.println("VARNAME: " + varName);
+                puts("VARNAME: " + varName);
 
                 cursorPosition = equalSignPosition;
                 cursorPosition++;
@@ -259,7 +261,7 @@ public class ConfigReader {
                 }
             }
 
-            //System.out.println();
+            //puts();
             cursorPosition++;
         }
 
@@ -283,7 +285,7 @@ public class ConfigReader {
     {
         if (obj instanceof ConfigTokens.ConfigVariableObject)
         {
-            System.out.println(
+            puts(
                     MessageFormat.format(
                             "{0}{1} = {2}",
                             "   ".repeat(indentlevel),
@@ -294,7 +296,7 @@ public class ConfigReader {
         }
         else if (obj instanceof ConfigTokens.ConfigLabelObject)
         {
-            System.out.println(
+            puts(
                     MessageFormat.format(
                             "{0}[{1}]\n{0}'{'",
                             "   ".repeat(indentlevel),
@@ -305,7 +307,7 @@ public class ConfigReader {
             for (ConfigTokens.ConfigObject currentObject : ((ConfigTokens.ConfigLabelObject) obj).objects)
                 PrintToken(currentObject, indentlevel + 1);
 
-            System.out.println(
+            puts(
                     MessageFormat.format(
                             "{0}'}'",
                             "   ".repeat(indentlevel)
