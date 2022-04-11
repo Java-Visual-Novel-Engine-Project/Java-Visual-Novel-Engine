@@ -1,6 +1,7 @@
 package com.marcel;
 
 import java.util.Dictionary;
+import java.util.List;
 
 public class ConfigTokens {
 
@@ -54,10 +55,25 @@ public class ConfigTokens {
             else if (this instanceof ConfigVariableDictionary)
             {
                 StringBuilder sb = new StringBuilder();
+                sb.append("{");
 
+                ConfigVariableDictionary dict = ((ConfigVariableDictionary) this);
+                for (int i = 0; i < dict.values.size(); i++) {
+                    sb.append(dict.values.get(i).name);
+                    sb.append(" = ");
+                    sb.append(dict.values.get(i).variable);
+                    if (i != (dict.values.size() - 1))
+                        sb.append(", ");
+                }
 
+                sb.append("}");
                 return sb.toString();
             }
+            else if (this instanceof ConfigVariableReference)
+            {
+                return "$" + ((ConfigVariableReference) this).variableName;
+            }
+
 
             return "<IDK>";
         }
@@ -113,12 +129,10 @@ public class ConfigTokens {
     }
 
     public static class ConfigVariableDictionary extends ConfigVariableObjectType {
-        public Dictionary<String, ConfigVariableObjectType> values;
+        public List<ConfigVariableObject> values;
 
-        public ConfigVariableDictionary(Dictionary<String, ConfigVariableObjectType> values) {
+        public ConfigVariableDictionary(List<ConfigVariableObject> values) {
             this.values = values;
         }
     }
-
-    private class ParserToken {}
 }

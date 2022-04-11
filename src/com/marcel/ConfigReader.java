@@ -34,7 +34,7 @@ public class ConfigReader {
         return ReadConfigString(strData);
     }
 
-    private static int CheckComments(String data, int cursorPosition)
+    private static int CheckComments(String data, int cursorPosition, boolean skipString)
     {
         char current = data.charAt(cursorPosition);
 
@@ -45,7 +45,7 @@ public class ConfigReader {
             return cursorPosition;
         }
 
-        if (current == '\"')
+        if (current == '\"' && skipString)
         {
             current = ' ';
             cursorPosition++;
@@ -105,7 +105,7 @@ public class ConfigReader {
 
 
             {
-                int tempCursorPosition = CheckComments(data, cursorPosition);
+                int tempCursorPosition = CheckComments(data, cursorPosition, true);
                 if (cursorPosition != tempCursorPosition)
                 {
                     cursorPosition = tempCursorPosition;
@@ -154,7 +154,7 @@ public class ConfigReader {
                     }
 
                     {
-                        int tempCursorPosition = CheckComments(data, cursorPosition);
+                        int tempCursorPosition = CheckComments(data, cursorPosition, true);
                         if (cursorPosition != tempCursorPosition)
                         {
                             cursorPosition = tempCursorPosition;
@@ -169,6 +169,8 @@ public class ConfigReader {
 
                 List<ConfigObject> tempList = ReadConfigString(data.substring(startBracket + 1, endBracket));
                 ConfigLabelObject labelObject = new ConfigLabelObject(label, tempList.toArray(new ConfigObject[0]));
+
+                objectList.add(labelObject);
 
                 cursorPosition++;
 
@@ -185,18 +187,19 @@ public class ConfigReader {
                 int varNameEnd = cursorPosition;
                 while (validVarChars.indexOf(data.charAt(cursorPosition)) != -1)
                     cursorPosition--;
-                int varNameStart = cursorPosition;
+                int varNameStart = cursorPosition+1;
 
                 String varName = data.substring(varNameStart, varNameEnd+1);
                 puts("VARNAME: " + varName);
 
                 cursorPosition = equalSignPosition;
                 cursorPosition++;
-                while (validVarChars.indexOf(data.charAt(cursorPosition)) == -1)
+                while (validVarChars.indexOf(data.charAt(cursorPosition)) == -1 && "\"${[".indexOf(data.charAt(cursorPosition)) == -1)
                     cursorPosition++;
                 int valueStart = cursorPosition;
 
                 char valueChar = data.charAt(valueStart);
+                puts("VAL CHAR: " + valueChar);
                 if (valueChar == '\"')
                 {
                     // String
@@ -211,26 +214,131 @@ public class ConfigReader {
                     }
                     int valueEnd = cursorPosition;
 
-                    String value = data.substring(valueStart+1, valueEnd); // get string data
+                    String value = data.substring(valueStart+1, valueEnd-1); // get string data
+                    puts("VALUE: \"" + value + "\"");
+
                     ConfigVariableObject obj = new ConfigVariableObject( // make new VariableObject with a VariableStringObject with the variable data
                             varName,
                             new ConfigVariableString(value)
                     );
                     objectList.add(obj); // add the object to the actual ObjectThing List
+
+                    cursorPosition++;
+                    continue;
                 }
                 else if ("-.0123456789".indexOf(valueChar) != -1)
                 {
                     // Probably Int or Double
+                    cursorPosition++;
+                    current = '0';
+                    while (".0123456789".indexOf(current) != -1)
+                    {
+                        current = data.charAt(cursorPosition);
+                        cursorPosition++;
+                    }
+                    int valueEnd = cursorPosition;
 
+                    String value = data.substring(valueStart, valueEnd-1); // get string data
+                    puts("VALUE: \"" + value + "\"");
+
+                    ConfigVariableObject obj;
+
+                    if (value.contains("."))
+                    {
+                        obj = new ConfigVariableObject( // make new VariableObject with a VariableStringObject with the variable data
+                                varName,
+                                new ConfigVariableDouble(Double.parseDouble(value))
+                        );
+                    }
+                    else
+                    {
+                        obj = new ConfigVariableObject( // make new VariableObject with a VariableStringObject with the variable data
+                                varName,
+                                new ConfigVariableInteger(Integer.parseInt(value))
+                        );
+                    }
+
+                    objectList.add(obj); // add the object to the actual ObjectThing List
+
+                    cursorPosition++;
+                    continue;
                 }
                 else if (valueChar == '$')
                 {
-                    // Reference
+                    cursorPosition++;
 
+                    while (validVarChars.indexOf(data.charAt(cursorPosition)) != -1 || data.charAt(cursorPosition) == '.')
+                        cursorPosition++;
+
+
+                    int valueEnd = cursorPosition;
+
+                    String value = data.substring(valueStart+1, valueEnd); // get string data
+                    puts("VALUE: \"" + value + "\"");
+
+                    ConfigVariableObject obj = new ConfigVariableObject( // make new VariableObject with a VariableStringObject with the variable data
+                            varName,
+                            new ConfigVariableReference(value)
+                    );
+                    objectList.add(obj); // add the object to the actual ObjectThing List
+
+                    cursorPosition++;
+                    continue;
                 }
                 else if (valueChar == '[')
                 {
-                    // Array
+                    int layer = 0, startBracket = 0, endBracket = 0;
+
+                    while (cursorPosition < contentSize)
+                    {
+                        current = data.charAt(cursorPosition);
+
+                        if (current == '[')
+                        {
+                            layer++;
+                            if (layer == 1)
+                                startBracket = cursorPosition;
+                            cursorPosition++;
+                            continue;
+                        }
+                        if (current == ']')
+                        {
+                            layer--;
+                            if (layer == 0)
+                            {
+                                endBracket = cursorPosition;
+                                break;
+                            }
+                            cursorPosition++;
+                            continue;
+                        }
+
+                        {
+                            int tempCursorPosition = CheckComments(data, cursorPosition, true);
+                            if (cursorPosition != tempCursorPosition)
+                            {
+                                cursorPosition = tempCursorPosition;
+                                continue;
+                            }
+                        }
+                        cursorPosition++;
+                    }
+
+                    puts("BRACKET DATA:\n<" + data.substring(startBracket + 1, endBracket) + ">\n");
+
+                    List<ConfigVariableObjectType> tempList = ReadConfigStringArray(" "+data.substring(startBracket + 1, endBracket) +" ");
+                    //ConfigLabelObject labelObject = new ConfigLabelObject(label, tempList.toArray(new ConfigObject[0]));
+
+                    ConfigVariableObject obj = new ConfigVariableObject(
+                            varName,
+                            new ConfigVariableArray(tempList.toArray(new ConfigVariableObjectType[0]))
+                    );
+
+
+                    objectList.add(obj);
+                    cursorPosition++;
+
+                    continue;
 
                 }
                 else if (valueChar == '{')
@@ -238,25 +346,112 @@ public class ConfigReader {
                     // Dictionary
                     // we can pass the content between the {} into the function again like in the label thing
 
+
+                    int layer = 0, startBracket = 0, endBracket = 0;
+
+                    while (cursorPosition < contentSize)
+                    {
+                        current = data.charAt(cursorPosition);
+
+                        if (current == '{')
+                        {
+                            layer++;
+                            if (layer == 1)
+                                startBracket = cursorPosition;
+                            cursorPosition++;
+                            continue;
+                        }
+                        if (current == '}')
+                        {
+                            layer--;
+                            if (layer == 0)
+                            {
+                                endBracket = cursorPosition;
+                                break;
+                            }
+                            cursorPosition++;
+                            continue;
+                        }
+
+                        {
+                            int tempCursorPosition = CheckComments(data, cursorPosition, true);
+                            if (cursorPosition != tempCursorPosition)
+                            {
+                                cursorPosition = tempCursorPosition;
+                                continue;
+                            }
+                        }
+                        cursorPosition++;
+                    }
+
+                    puts("BRACKET DATA:\n<" + data.substring(startBracket + 1, endBracket) + ">\n");
+
+                    List<ConfigObject> tempList = ReadConfigString(" "+data.substring(startBracket + 1, endBracket) +" ");
+                    //ConfigLabelObject labelObject = new ConfigLabelObject(label, tempList.toArray(new ConfigObject[0]));
+
+                    List<ConfigVariableObject> vars = new ArrayList<>();
+                    for (ConfigObject obj_ : tempList)
+                    {
+                        if (obj_ instanceof ConfigVariableObject)
+                            vars.add((ConfigVariableObject) obj_);
+                    }
+
+                    ConfigVariableObject obj = new ConfigVariableObject(
+                            varName,
+                            new ConfigVariableDictionary(vars)
+                    );
+
+
+                    objectList.add(obj);
+
+                    cursorPosition++;
+
+                    continue;
+
                 }
                 else
                 {
-                    String value = "";
+                    cursorPosition++;
+                    current = data.charAt(cursorPosition);
+                    while ("truefals".indexOf(current) != -1)
+                    {
+                        current = data.charAt(cursorPosition);
+                        cursorPosition++;
+                    }
+                    int valueEnd = cursorPosition;
+
+                    String value = data.substring(valueStart, valueEnd-1); // get string data
+                    puts("VALUE: \"" + value + "\"");
+
+
+
+                    ConfigVariableObject obj;
 
                     // get the word like the varname
 
                     if (value.equals("true"))
                     {
-                        // True Boolean
+                        obj = new ConfigVariableObject( // make new VariableObject with a VariableStringObject with the variable data
+                                varName,
+                                new ConfigVariableBoolean(true)
+                        );
                     }
                     else if (value.equals("false"))
                     {
-                        // Fals Boolean
+                        obj = new ConfigVariableObject( // make new VariableObject with a VariableStringObject with the variable data
+                                varName,
+                                new ConfigVariableBoolean(false)
+                        );
                     }
                     else
                     {
-                        // Big nono
+                        return null;
                     }
+
+                    objectList.add(obj); // add the object to the actual ObjectThing List
+
+                    cursorPosition++;
+                    continue;
                 }
             }
 
@@ -266,6 +461,285 @@ public class ConfigReader {
 
         return objectList;
     }
+
+
+
+
+
+    public static List<ConfigVariableObjectType> ReadConfigStringArray(String data)
+    {
+        List<ConfigVariableObjectType> objectList = new ArrayList<>();
+
+        int contentSize = data.length();
+        int cursorPosition = 0;
+
+        //CT. new ConfigLabelObject("Test_Label_2", __);
+
+        //('[', '/', '(')
+
+        while (cursorPosition < contentSize) {
+
+            char current = data.charAt(cursorPosition);
+
+            {
+                int tempCursorPosition = CheckComments(data, cursorPosition, false);
+                if (cursorPosition != tempCursorPosition)
+                {
+                    cursorPosition = tempCursorPosition;
+                    continue;
+                }
+            }
+
+            if (validVarChars.indexOf(data.charAt(cursorPosition)) != -1 || "\"${[".indexOf(data.charAt(cursorPosition)) != -1)
+            {
+                //while (validVarChars.indexOf(data.charAt(cursorPosition)) == -1 && "\"${[".indexOf(data.charAt(cursorPosition)) == -1)
+                    //cursorPosition++;
+                int valueStart = cursorPosition;
+
+                char valueChar = data.charAt(valueStart);
+                puts("VAL CHAR: " + valueChar);
+                if (valueChar == '\"')
+                {
+                    // String
+                    current = ' ';
+                    cursorPosition++;
+                    while (current != '\"')
+                    {
+                        current = data.charAt(cursorPosition);
+                        if (current == '\\')
+                            cursorPosition++;
+                        cursorPosition++;
+                    }
+                    int valueEnd = cursorPosition;
+
+                    String value = data.substring(valueStart+1, valueEnd-1); // get string data
+                    puts("VALUE: \"" + value + "\"");
+
+                    objectList.add(new ConfigVariableString(value)); // add the object to the actual ObjectThing List
+
+
+                    continue;
+                }
+                else if ("-.0123456789".indexOf(valueChar) != -1)
+                {
+                    // Probably Int or Double
+                    cursorPosition++;
+                    current = '0';
+                    while (".0123456789".indexOf(current) != -1)
+                    {
+                        current = data.charAt(cursorPosition);
+                        cursorPosition++;
+                    }
+                    int valueEnd = cursorPosition;
+
+                    String value = data.substring(valueStart, valueEnd-1); // get string data
+                    puts("VALUE: \"" + value + "\"");
+
+                    ConfigVariableObject obj;
+
+                    if (value.contains("."))
+                        objectList.add(new ConfigVariableDouble(Double.parseDouble(value)));
+                    else
+                        objectList.add(new ConfigVariableInteger(Integer.parseInt(value)));
+
+                     // add the object to the actual ObjectThing List
+
+                    continue;
+                }
+                else if (valueChar == '$')
+                {
+                    cursorPosition++;
+
+                    while (validVarChars.indexOf(data.charAt(cursorPosition)) != -1 || data.charAt(cursorPosition) == '.')
+                        cursorPosition++;
+
+
+                    int valueEnd = cursorPosition;
+
+                    String value = data.substring(valueStart+1, valueEnd); // get string data
+                    puts("VALUE: \"" + value + "\"");
+
+                    objectList.add(new ConfigVariableReference(value)); // add the object to the actual ObjectThing List
+
+
+                    continue;
+                }
+                else if (valueChar == '[')
+                {
+                    int layer = 0, startBracket = 0, endBracket = 0;
+
+                    while (cursorPosition < contentSize)
+                    {
+                        current = data.charAt(cursorPosition);
+
+                        if (current == '[')
+                        {
+                            layer++;
+                            if (layer == 1)
+                                startBracket = cursorPosition;
+                            cursorPosition++;
+                            continue;
+                        }
+                        if (current == ']')
+                        {
+                            layer--;
+                            if (layer == 0)
+                            {
+                                endBracket = cursorPosition;
+                                break;
+                            }
+                            cursorPosition++;
+                            continue;
+                        }
+
+                        {
+                            int tempCursorPosition = CheckComments(data, cursorPosition, true);
+                            if (cursorPosition != tempCursorPosition)
+                            {
+                                cursorPosition = tempCursorPosition;
+                                continue;
+                            }
+                        }
+                        cursorPosition++;
+                    }
+
+                    puts("BRACKET DATA:\n<" + data.substring(startBracket + 1, endBracket) + ">\n");
+
+                    List<ConfigVariableObjectType> tempList = ReadConfigStringArray(" "+data.substring(startBracket + 1, endBracket) +" ");
+                    //ConfigLabelObject labelObject = new ConfigLabelObject(label, tempList.toArray(new ConfigObject[0]));
+
+                    objectList.add(new ConfigVariableArray(tempList.toArray(new ConfigVariableObjectType[0])));
+
+                    continue;
+
+                }
+                else if (valueChar == '{')
+                {
+                    // Dictionary
+                    // we can pass the content between the {} into the function again like in the label thing
+
+
+                    int layer = 0, startBracket = 0, endBracket = 0;
+
+                    while (cursorPosition < contentSize)
+                    {
+                        current = data.charAt(cursorPosition);
+
+                        if (current == '{')
+                        {
+                            layer++;
+                            if (layer == 1)
+                                startBracket = cursorPosition;
+                            cursorPosition++;
+                            continue;
+                        }
+                        if (current == '}')
+                        {
+                            layer--;
+                            if (layer == 0)
+                            {
+                                endBracket = cursorPosition;
+                                break;
+                            }
+                            cursorPosition++;
+                            continue;
+                        }
+
+                        {
+                            int tempCursorPosition = CheckComments(data, cursorPosition, true);
+                            if (cursorPosition != tempCursorPosition)
+                            {
+                                cursorPosition = tempCursorPosition;
+                                continue;
+                            }
+                        }
+                        cursorPosition++;
+                    }
+
+                    puts("BRACKET DATA:\n<" + data.substring(startBracket + 1, endBracket) + ">\n");
+
+                    List<ConfigObject> tempList = ReadConfigString(" "+data.substring(startBracket + 1, endBracket) +" ");
+                    //ConfigLabelObject labelObject = new ConfigLabelObject(label, tempList.toArray(new ConfigObject[0]));
+
+                    List<ConfigVariableObject> vars = new ArrayList<>();
+                    for (ConfigObject obj_ : tempList)
+                    {
+                        if (obj_ instanceof ConfigVariableObject)
+                            vars.add((ConfigVariableObject) obj_);
+                    }
+
+                    objectList.add(new ConfigVariableDictionary(vars));
+
+                    continue;
+
+                }
+                else
+                {
+                    cursorPosition++;
+                    current = data.charAt(cursorPosition);
+                    while ("truefals".indexOf(current) != -1)
+                    {
+                        current = data.charAt(cursorPosition);
+                        cursorPosition++;
+                    }
+                    int valueEnd = cursorPosition;
+
+                    String value = data.substring(valueStart, valueEnd-1); // get string data
+                    puts("VALUE: \"" + value + "\"");
+
+
+
+                    ConfigVariableObject obj;
+
+                    // get the word like the varname
+
+                    if (value.equals("true"))
+                        objectList.add(new ConfigVariableBoolean(true));
+
+                    else if (value.equals("false"))
+                        objectList.add(new ConfigVariableBoolean(false));
+
+                    else
+                    {
+                        return null;
+                    }
+                    // add the object to the actual ObjectThing List
+
+                    continue;
+                }
+
+
+            }
+
+
+
+
+            //puts();
+            cursorPosition++;
+        }
+
+        return objectList;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     public static void WriteConfigFile(String filename, List<ConfigObject> objectList) {}
 
