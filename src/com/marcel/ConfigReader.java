@@ -1,21 +1,18 @@
 package com.marcel;
 
-import static com.marcel.Util.puts;
-import static com.marcel.ConfigTokens.*;
-
-import java.awt.*;
 import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.PrintWriter;
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Dictionary;
-import java.util.List;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.Files;
-import java.nio.charset.StandardCharsets;
-import java.io.IOException;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.List;
+
+import static com.marcel.ConfigTokens.*;
+import static com.marcel.Util.puts;
 
 public class ConfigReader {
 
@@ -72,7 +69,7 @@ public class ConfigReader {
         for (ConfigObject obj : currentLabel.objects) {
             if (obj instanceof ConfigVariableObject)
                 if (((ConfigVariableObject)obj).name.equals(parts[parts.length - 1]))
-                    var = ((ConfigVariableObjectType) ((ConfigVariableObject)obj).variable);
+                    var = ((ConfigVariableObject)obj).variable;
 
         }
 
@@ -142,11 +139,11 @@ public class ConfigReader {
     }
 
 
-    private static String validVarChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_0123456789-äöü";
+    private static final String validVarChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_0123456789-äöü";
 
     public static List<ConfigObject> ReadConfigString(String data)
     {
-        List<ConfigObject> objectList = new ArrayList<ConfigObject>();
+        List<ConfigObject> objectList = new ArrayList<>();
 
         int contentSize = data.length();
         int cursorPosition = 0;
@@ -525,7 +522,7 @@ public class ConfigReader {
 
         while (cursorPosition < contentSize) {
 
-            char current = data.charAt(cursorPosition);
+            char current;
 
             {
                 int tempCursorPosition = CheckComments(data, cursorPosition, false);
@@ -580,8 +577,6 @@ public class ConfigReader {
 
                     String value = data.substring(valueStart, valueEnd-1); // get string data
                     //puts("VALUE: \"" + value + "\"");
-
-                    ConfigVariableObject obj;
 
                     if (value.contains("."))
                         objectList.add(new ConfigVariableDouble(Double.parseDouble(value)));
@@ -734,9 +729,6 @@ public class ConfigReader {
                     //puts("VALUE: \"" + value + "\"");
 
 
-
-                    ConfigVariableObject obj;
-
                     // get the word like the varname
 
                     if (value.equals("true"))
@@ -824,7 +816,7 @@ public class ConfigReader {
             ConfigObject obj = objectList.get(i);
             if (obj instanceof ConfigLabelObject)
             {
-                temp.append(PrintToken(obj, 0, i == 0) + "\n");
+                temp.append(PrintToken(obj, 0, i == 0)).append("\n");
             }
         }
 

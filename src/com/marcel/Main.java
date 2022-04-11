@@ -1,7 +1,5 @@
 package com.marcel;
 
-import static com.marcel.Util.*;
-
 import java.util.List;
 
 public class Main {
