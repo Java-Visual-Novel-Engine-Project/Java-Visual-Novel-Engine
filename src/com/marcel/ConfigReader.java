@@ -1,6 +1,7 @@
 package com.marcel;
 
-import static com.marcel.Util.*;
+import static com.marcel.Util.puts;
+import static com.marcel.ConfigTokens.*;
 
 import java.awt.*;
 import java.text.MessageFormat;
@@ -15,9 +16,7 @@ import java.io.IOException;
 
 public class ConfigReader {
 
-    private static ConfigTokens CT = ConfigTokens.instance;
-
-    public static List<ConfigTokens.ConfigObject> ReadConfigFile(String filename)
+    public static List<ConfigObject> ReadConfigFile(String filename)
     {
         Path path = Paths.get(filename);
         byte[] binData;
@@ -89,9 +88,9 @@ public class ConfigReader {
 
     private static String validVarChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_0123456789-äöü";
 
-    public static List<ConfigTokens.ConfigObject> ReadConfigString(String data)
+    public static List<ConfigObject> ReadConfigString(String data)
     {
-        List<ConfigTokens.ConfigObject> objectList = new ArrayList<ConfigTokens.ConfigObject>();
+        List<ConfigObject> objectList = new ArrayList<ConfigObject>();
 
         int contentSize = data.length();
         int cursorPosition = 0;
@@ -168,8 +167,8 @@ public class ConfigReader {
                 puts("LABEL: \""+ label + "\"");
                 puts("BRACKET DATA:\n<" + data.substring(startBracket + 1, endBracket) + ">\n");
 
-                List<ConfigTokens.ConfigObject> tempList = ReadConfigString(data.substring(startBracket + 1, endBracket));
-                ConfigTokens.ConfigLabelObject labelObject = CT.new ConfigLabelObject(label, tempList.toArray(new ConfigTokens.ConfigObject[0]));
+                List<ConfigObject> tempList = ReadConfigString(data.substring(startBracket + 1, endBracket));
+                ConfigLabelObject labelObject = new ConfigLabelObject(label, tempList.toArray(new ConfigObject[0]));
 
                 cursorPosition++;
 
@@ -213,9 +212,9 @@ public class ConfigReader {
                     int valueEnd = cursorPosition;
 
                     String value = data.substring(valueStart+1, valueEnd); // get string data
-                    ConfigTokens.ConfigVariableObject obj = CT.new ConfigVariableObject( // make new VariableObject with a VariableStringObject with the variable data
+                    ConfigVariableObject obj = new ConfigVariableObject( // make new VariableObject with a VariableStringObject with the variable data
                             varName,
-                            CT.new ConfigVariableString(value)
+                            new ConfigVariableString(value)
                     );
                     objectList.add(obj); // add the object to the actual ObjectThing List
                 }
@@ -268,43 +267,43 @@ public class ConfigReader {
         return objectList;
     }
 
-    public static void WriteConfigFile(String filename, List<ConfigTokens.ConfigObject> objectList) {}
+    public static void WriteConfigFile(String filename, List<ConfigObject> objectList) {}
 
-    public static void PrintTokens(List<ConfigTokens.ConfigObject> objectList)
+    public static void PrintTokens(List<ConfigObject> objectList)
     {
-        for (ConfigTokens.ConfigObject obj : objectList)
+        for (ConfigObject obj : objectList)
         {
-            if (obj instanceof ConfigTokens.ConfigLabelObject)
+            if (obj instanceof ConfigLabelObject)
             {
                 PrintToken(obj, 0);
             }
         }
     }
 
-    private static void PrintToken(ConfigTokens.ConfigObject obj, int indentlevel)
+    private static void PrintToken(ConfigObject obj, int indentlevel)
     {
-        if (obj instanceof ConfigTokens.ConfigVariableObject)
+        if (obj instanceof ConfigVariableObject)
         {
             puts(
                     MessageFormat.format(
                             "{0}{1} = {2}",
                             "   ".repeat(indentlevel),
-                            ((ConfigTokens.ConfigVariableObject) obj).name,
-                            ((ConfigTokens.ConfigVariableObject) obj).variable
+                            ((ConfigVariableObject) obj).name,
+                            ((ConfigVariableObject) obj).variable
                     )
             );
         }
-        else if (obj instanceof ConfigTokens.ConfigLabelObject)
+        else if (obj instanceof ConfigLabelObject)
         {
             puts(
                     MessageFormat.format(
                             "{0}[{1}]\n{0}'{'",
                             "   ".repeat(indentlevel),
-                            ((ConfigTokens.ConfigLabelObject) obj).label
+                            ((ConfigLabelObject) obj).label
                     )
             );
 
-            for (ConfigTokens.ConfigObject currentObject : ((ConfigTokens.ConfigLabelObject) obj).objects)
+            for (ConfigObject currentObject : ((ConfigLabelObject) obj).objects)
                 PrintToken(currentObject, indentlevel + 1);
 
             puts(
@@ -318,33 +317,33 @@ public class ConfigReader {
 }
 
 /*objectList.add(
-    CT.new ConfigLabelObject(
+    ConfigLabelObject(
         "Test_Label",
-        new ConfigTokens.ConfigObject[]
+        new ConfigObject[]
         {
-            CT. new ConfigVariableObject(
+            new ConfigVariableObject(
                 "Test_Variable",
-                CT.new ConfigVariableString("bruh")
+                ConfigVariableString("bruh")
             ),
-            CT. new ConfigVariableObject(
+            new ConfigVariableObject(
                 "What's_9_plus_10",
-                CT.new ConfigVariableDouble(21.0)
+                ConfigVariableDouble(21.0)
             ),
-            CT. new ConfigLabelObject(
+            new ConfigLabelObject(
                 "Test_Label_2",
-                new ConfigTokens.ConfigObject[]
+                new ConfigObject[]
                 {
-                    CT. new ConfigVariableObject(
+                    new ConfigVariableObject(
                         "Test_Variable_2",
-                        CT.new ConfigVariableBoolean(false)
+                        ConfigVariableBoolean(false)
                     ),
-                    CT. new ConfigVariableObject(
+                    new ConfigVariableObject(
                         "Test_Array",
-                        CT.new ConfigVariableArray(
-                            new ConfigTokens.ConfigVariableObjectType[]
+                        ConfigVariableArray(
+                            new ConfigVariableObjectType[]
                             {
-                                CT.new ConfigVariableString("bruh"),
-                                CT.new ConfigVariableInteger(10)
+                                ConfigVariableString("bruh"),
+                                ConfigVariableInteger(10)
                             }
                         )
                     )

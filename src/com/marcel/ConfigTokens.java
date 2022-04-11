@@ -4,12 +4,9 @@ import java.util.Dictionary;
 
 public class ConfigTokens {
 
-    public static ConfigTokens instance = new ConfigTokens();
+    public static class ConfigObject {}
 
-
-    class ConfigObject {}
-
-    class ConfigLabelObject extends ConfigObject {
+    public static class ConfigLabelObject extends ConfigObject {
         public String label;
         public ConfigObject[] objects;
 
@@ -19,7 +16,7 @@ public class ConfigTokens {
         }
     }
 
-    class ConfigVariableObject extends ConfigObject {
+    public static class ConfigVariableObject extends ConfigObject {
         public String name;
         public ConfigVariableObjectType variable;
 
@@ -29,7 +26,7 @@ public class ConfigTokens {
         }
     }
 
-    class ConfigVariableObjectType {
+    public static class ConfigVariableObjectType {
         @Override
         public String toString() {
             if (this instanceof ConfigVariableString)
@@ -67,7 +64,7 @@ public class ConfigTokens {
 
     }
 
-    class ConfigVariableReference extends ConfigVariableObjectType {
+    public static class ConfigVariableReference extends ConfigVariableObjectType {
         public String variableName;
 
         public ConfigVariableReference(String variableName) {
@@ -75,7 +72,7 @@ public class ConfigTokens {
         }
     }
 
-    class ConfigVariableInteger extends ConfigVariableObjectType {
+    public static class ConfigVariableInteger extends ConfigVariableObjectType {
         public int value;
 
         public ConfigVariableInteger(int value) {
@@ -83,7 +80,7 @@ public class ConfigTokens {
         }
     }
 
-    class ConfigVariableDouble extends ConfigVariableObjectType {
+    public static class ConfigVariableDouble extends ConfigVariableObjectType {
         public double value;
 
         public ConfigVariableDouble(double value) {
@@ -91,7 +88,7 @@ public class ConfigTokens {
         }
     }
 
-    class ConfigVariableString extends ConfigVariableObjectType {
+    public static class ConfigVariableString extends ConfigVariableObjectType {
         public String value;
 
         public ConfigVariableString(String value) {
@@ -99,7 +96,7 @@ public class ConfigTokens {
         }
     }
 
-    class ConfigVariableBoolean extends ConfigVariableObjectType {
+    public static class ConfigVariableBoolean extends ConfigVariableObjectType {
         public boolean value;
 
         public ConfigVariableBoolean(boolean value) {
@@ -107,7 +104,7 @@ public class ConfigTokens {
         }
     }
 
-    class ConfigVariableArray extends ConfigVariableObjectType {
+    public static class ConfigVariableArray extends ConfigVariableObjectType {
         public ConfigVariableObjectType[] values;
 
         public ConfigVariableArray(ConfigVariableObjectType[] values) {
@@ -115,7 +112,7 @@ public class ConfigTokens {
         }
     }
 
-    class ConfigVariableDictionary extends ConfigVariableObjectType {
+    public static class ConfigVariableDictionary extends ConfigVariableObjectType {
         public Dictionary<String, ConfigVariableObjectType> values;
 
         public ConfigVariableDictionary(Dictionary<String, ConfigVariableObjectType> values) {
