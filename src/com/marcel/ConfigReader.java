@@ -34,6 +34,59 @@ public class ConfigReader {
         return ReadConfigString(strData);
     }
 
+
+    private static ConfigLabelObject FindLabel(String name, List<ConfigObject> objectList)
+    {
+        for (ConfigObject obj : objectList)
+            if (obj instanceof  ConfigLabelObject)
+                return (ConfigLabelObject) obj;
+
+        return null;
+    }
+
+
+    private static ConfigLabelObject FindLabel(String name, ConfigObject[] objectList)
+    {
+        for (ConfigObject obj : objectList)
+            if (obj instanceof  ConfigLabelObject)
+                return (ConfigLabelObject) obj;
+
+        return null;
+    }
+
+    public static ConfigVariableObjectType GetConfigValue(String configPath, List<ConfigObject> objectList, boolean resolveReference)
+    {
+        String[] parts = configPath.split(java.util.regex.Pattern.quote("."));
+
+        ConfigLabelObject currentLabel = FindLabel(parts[0], objectList);
+
+        for (int i = 0; i < parts.length - 2; i++)
+            currentLabel = FindLabel(parts[i+1], currentLabel.objects);
+
+
+        ConfigVariableObjectType var = null;
+
+        for (ConfigObject obj : currentLabel.objects) {
+            if (obj instanceof ConfigVariableObject)
+                if (((ConfigVariableObject)obj).name.equals(parts[parts.length - 1]))
+                    var = ((ConfigVariableObjectType) ((ConfigVariableObject)obj).variable);
+
+        }
+
+        if (resolveReference)
+            if (var != null)
+                if (var instanceof ConfigVariableReference)
+                    var = ConfigReader.GetConfigValue((((ConfigVariableReference)var).variableName), objectList, true);
+
+        // Potentially add indexing!
+
+        return var;
+    }
+
+
+
+
+
     private static int CheckComments(String data, int cursorPosition, boolean skipString)
     {
         char current = data.charAt(cursorPosition);
@@ -164,15 +217,13 @@ public class ConfigReader {
                     cursorPosition++;
                 }
 
-                puts("LABEL: \""+ label + "\"");
-                puts("BRACKET DATA:\n<" + data.substring(startBracket + 1, endBracket) + ">\n");
+                //puts("LABEL: \""+ label + "\"");
+                //puts("BRACKET DATA:\n<" + data.substring(startBracket + 1, endBracket) + ">\n");
 
                 List<ConfigObject> tempList = ReadConfigString(data.substring(startBracket + 1, endBracket));
                 ConfigLabelObject labelObject = new ConfigLabelObject(label, tempList.toArray(new ConfigObject[0]));
 
                 objectList.add(labelObject);
-
-                cursorPosition++;
 
                 continue;
             }
@@ -190,7 +241,7 @@ public class ConfigReader {
                 int varNameStart = cursorPosition+1;
 
                 String varName = data.substring(varNameStart, varNameEnd+1);
-                puts("VARNAME: " + varName);
+                //puts("VARNAME: " + varName);
 
                 cursorPosition = equalSignPosition;
                 cursorPosition++;
@@ -199,7 +250,7 @@ public class ConfigReader {
                 int valueStart = cursorPosition;
 
                 char valueChar = data.charAt(valueStart);
-                puts("VAL CHAR: " + valueChar);
+                //puts("VAL CHAR: " + valueChar);
                 if (valueChar == '\"')
                 {
                     // String
@@ -215,7 +266,7 @@ public class ConfigReader {
                     int valueEnd = cursorPosition;
 
                     String value = data.substring(valueStart+1, valueEnd-1); // get string data
-                    puts("VALUE: \"" + value + "\"");
+                    //puts("VALUE: \"" + value + "\"");
 
                     ConfigVariableObject obj = new ConfigVariableObject( // make new VariableObject with a VariableStringObject with the variable data
                             varName,
@@ -223,7 +274,6 @@ public class ConfigReader {
                     );
                     objectList.add(obj); // add the object to the actual ObjectThing List
 
-                    cursorPosition++;
                     continue;
                 }
                 else if ("-.0123456789".indexOf(valueChar) != -1)
@@ -239,7 +289,7 @@ public class ConfigReader {
                     int valueEnd = cursorPosition;
 
                     String value = data.substring(valueStart, valueEnd-1); // get string data
-                    puts("VALUE: \"" + value + "\"");
+                    //puts("VALUE: \"" + value + "\"");
 
                     ConfigVariableObject obj;
 
@@ -260,7 +310,6 @@ public class ConfigReader {
 
                     objectList.add(obj); // add the object to the actual ObjectThing List
 
-                    cursorPosition++;
                     continue;
                 }
                 else if (valueChar == '$')
@@ -274,7 +323,7 @@ public class ConfigReader {
                     int valueEnd = cursorPosition;
 
                     String value = data.substring(valueStart+1, valueEnd); // get string data
-                    puts("VALUE: \"" + value + "\"");
+                    //puts("VALUE: \"" + value + "\"");
 
                     ConfigVariableObject obj = new ConfigVariableObject( // make new VariableObject with a VariableStringObject with the variable data
                             varName,
@@ -282,7 +331,6 @@ public class ConfigReader {
                     );
                     objectList.add(obj); // add the object to the actual ObjectThing List
 
-                    cursorPosition++;
                     continue;
                 }
                 else if (valueChar == '[')
@@ -324,7 +372,7 @@ public class ConfigReader {
                         cursorPosition++;
                     }
 
-                    puts("BRACKET DATA:\n<" + data.substring(startBracket + 1, endBracket) + ">\n");
+                    //puts("BRACKET DATA:\n<" + data.substring(startBracket + 1, endBracket) + ">\n");
 
                     List<ConfigVariableObjectType> tempList = ReadConfigStringArray(" "+data.substring(startBracket + 1, endBracket) +" ");
                     //ConfigLabelObject labelObject = new ConfigLabelObject(label, tempList.toArray(new ConfigObject[0]));
@@ -334,9 +382,7 @@ public class ConfigReader {
                             new ConfigVariableArray(tempList.toArray(new ConfigVariableObjectType[0]))
                     );
 
-
                     objectList.add(obj);
-                    cursorPosition++;
 
                     continue;
 
@@ -384,7 +430,7 @@ public class ConfigReader {
                         cursorPosition++;
                     }
 
-                    puts("BRACKET DATA:\n<" + data.substring(startBracket + 1, endBracket) + ">\n");
+                    //puts("BRACKET DATA:\n<" + data.substring(startBracket + 1, endBracket) + ">\n");
 
                     List<ConfigObject> tempList = ReadConfigString(" "+data.substring(startBracket + 1, endBracket) +" ");
                     //ConfigLabelObject labelObject = new ConfigLabelObject(label, tempList.toArray(new ConfigObject[0]));
@@ -404,8 +450,6 @@ public class ConfigReader {
 
                     objectList.add(obj);
 
-                    cursorPosition++;
-
                     continue;
 
                 }
@@ -421,7 +465,7 @@ public class ConfigReader {
                     int valueEnd = cursorPosition;
 
                     String value = data.substring(valueStart, valueEnd-1); // get string data
-                    puts("VALUE: \"" + value + "\"");
+                    //puts("VALUE: \"" + value + "\"");
 
 
 
@@ -450,7 +494,6 @@ public class ConfigReader {
 
                     objectList.add(obj); // add the object to the actual ObjectThing List
 
-                    cursorPosition++;
                     continue;
                 }
             }
@@ -497,7 +540,7 @@ public class ConfigReader {
                 int valueStart = cursorPosition;
 
                 char valueChar = data.charAt(valueStart);
-                puts("VAL CHAR: " + valueChar);
+                //puts("VAL CHAR: " + valueChar);
                 if (valueChar == '\"')
                 {
                     // String
@@ -513,7 +556,7 @@ public class ConfigReader {
                     int valueEnd = cursorPosition;
 
                     String value = data.substring(valueStart+1, valueEnd-1); // get string data
-                    puts("VALUE: \"" + value + "\"");
+                    //puts("VALUE: \"" + value + "\"");
 
                     objectList.add(new ConfigVariableString(value)); // add the object to the actual ObjectThing List
 
@@ -533,7 +576,7 @@ public class ConfigReader {
                     int valueEnd = cursorPosition;
 
                     String value = data.substring(valueStart, valueEnd-1); // get string data
-                    puts("VALUE: \"" + value + "\"");
+                    //puts("VALUE: \"" + value + "\"");
 
                     ConfigVariableObject obj;
 
@@ -557,7 +600,7 @@ public class ConfigReader {
                     int valueEnd = cursorPosition;
 
                     String value = data.substring(valueStart+1, valueEnd); // get string data
-                    puts("VALUE: \"" + value + "\"");
+                    //puts("VALUE: \"" + value + "\"");
 
                     objectList.add(new ConfigVariableReference(value)); // add the object to the actual ObjectThing List
 
@@ -603,7 +646,7 @@ public class ConfigReader {
                         cursorPosition++;
                     }
 
-                    puts("BRACKET DATA:\n<" + data.substring(startBracket + 1, endBracket) + ">\n");
+                    //puts("BRACKET DATA:\n<" + data.substring(startBracket + 1, endBracket) + ">\n");
 
                     List<ConfigVariableObjectType> tempList = ReadConfigStringArray(" "+data.substring(startBracket + 1, endBracket) +" ");
                     //ConfigLabelObject labelObject = new ConfigLabelObject(label, tempList.toArray(new ConfigObject[0]));
@@ -656,7 +699,7 @@ public class ConfigReader {
                         cursorPosition++;
                     }
 
-                    puts("BRACKET DATA:\n<" + data.substring(startBracket + 1, endBracket) + ">\n");
+                    //puts("BRACKET DATA:\n<" + data.substring(startBracket + 1, endBracket) + ">\n");
 
                     List<ConfigObject> tempList = ReadConfigString(" "+data.substring(startBracket + 1, endBracket) +" ");
                     //ConfigLabelObject labelObject = new ConfigLabelObject(label, tempList.toArray(new ConfigObject[0]));
@@ -685,7 +728,7 @@ public class ConfigReader {
                     int valueEnd = cursorPosition;
 
                     String value = data.substring(valueStart, valueEnd-1); // get string data
-                    puts("VALUE: \"" + value + "\"");
+                    //puts("VALUE: \"" + value + "\"");
 
 
 
@@ -745,23 +788,24 @@ public class ConfigReader {
 
     public static void PrintTokens(List<ConfigObject> objectList)
     {
-        for (ConfigObject obj : objectList)
+        for (int i = 0; i < objectList.size(); i++)
         {
+            ConfigObject obj = objectList.get(i);
             if (obj instanceof ConfigLabelObject)
             {
-                PrintToken(obj, 0);
+                PrintToken(obj, 0, i == 0);
             }
         }
     }
 
-    private static void PrintToken(ConfigObject obj, int indentlevel)
+    private static void PrintToken(ConfigObject obj, int indentlevel, boolean firstLabel)
     {
         if (obj instanceof ConfigVariableObject)
         {
             puts(
                     MessageFormat.format(
                             "{0}{1} = {2}",
-                            "   ".repeat(indentlevel),
+                            "\t".repeat(indentlevel),
                             ((ConfigVariableObject) obj).name,
                             ((ConfigVariableObject) obj).variable
                     )
@@ -769,21 +813,41 @@ public class ConfigReader {
         }
         else if (obj instanceof ConfigLabelObject)
         {
+            if (!firstLabel)
+                puts("");
+
             puts(
                     MessageFormat.format(
                             "{0}[{1}]\n{0}'{'",
-                            "   ".repeat(indentlevel),
+                            "\t".repeat(indentlevel),
                             ((ConfigLabelObject) obj).label
                     )
             );
 
-            for (ConfigObject currentObject : ((ConfigLabelObject) obj).objects)
-                PrintToken(currentObject, indentlevel + 1);
+            //for (ConfigObject currentObject : ((ConfigLabelObject) obj).objects)
+                //PrintToken(currentObject, indentlevel + 1);
+
+            boolean labelBefore = false;
+
+            for (int i = 0; i < ((ConfigLabelObject) obj).objects.length; i++) {
+                ConfigObject currentObject = ((ConfigLabelObject) obj).objects[i];
+                if (currentObject instanceof ConfigVariableObject)
+                    if (labelBefore)
+                        puts("");
+
+                PrintToken(currentObject, indentlevel + 1, i == 0);
+
+                if (currentObject instanceof ConfigLabelObject)
+                    labelBefore = true;
+                else
+                    labelBefore = false;
+            }
+
 
             puts(
                     MessageFormat.format(
                             "{0}'}'",
-                            "   ".repeat(indentlevel)
+                            "\t".repeat(indentlevel)
                     )
             );
         }
