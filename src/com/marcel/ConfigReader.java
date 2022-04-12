@@ -841,29 +841,29 @@ public class ConfigReader {
 
 						if (current == '{')
 						{
-								layer++;
+							layer++;
 
-								if (layer == 1)
-									startBracket = cursorPosition;
+							if (layer == 1)
+								startBracket = cursorPosition;
 
-								cursorPosition++;
+							cursorPosition++;
 
-								continue;
+							continue;
 						}
 
 						if (current == '}')
 						{
-								layer--;
+							layer--;
 
-								if (layer == 0)
-								{
-									endBracket = cursorPosition;
-									break;
-								}
+							if (layer == 0)
+							{
+								endBracket = cursorPosition;
+								break;
+							}
 
-								cursorPosition++;
+							cursorPosition++;
 
-								continue;
+							continue;
 						}
 
 						{
