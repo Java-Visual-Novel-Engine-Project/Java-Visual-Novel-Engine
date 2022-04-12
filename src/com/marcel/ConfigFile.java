@@ -1,54 +1,59 @@
 package com.marcel;
-import com.marcel.ConfigReader;
 
 import java.util.List;
-import com.marcel.ConfigTokens.*;
+
+import static com.marcel.ConfigTokens.*;
+
+import static com.marcel.ConfigReader.ReadConfigFile;
+import static com.marcel.ConfigReader.WriteConfigFile;
+import static com.marcel.ConfigReader.PrintTokens;
+import static com.marcel.ConfigReader.GetValue;
 
 public class ConfigFile {
-    //public String filename;
-    List<ConfigObject> objectList;
-    public ConfigFile(String filename) throws Exception {
-        objectList = ConfigReader.ReadConfigFile(filename);
-    }
 
-    public ConfigFile(List<ConfigObject> objectList)
-    {
-        this.objectList = objectList;
-    }
+	List<ConfigObject> objectList;
 
-    public void ReadFromFile(String filename) throws Exception {
-        objectList = ConfigReader.ReadConfigFile(filename);
-    }
+	public ConfigFile(String filename) throws Exception {
+		objectList = ReadConfigFile(filename);
+	}
 
-    public void WriteToFile(String filename)
-    {
-        ConfigReader.WriteConfigFile(filename, objectList);
-    }
+	public ConfigFile(List<ConfigObject> objectList)
+	{
+		this.objectList = objectList;
+	}
 
-    public void PrintTokens()
-    {
-        ConfigReader.PrintTokens(objectList);
-    }
+	public void ReadFromFile(String filename) throws Exception {
+		objectList = ReadConfigFile(filename);
+	}
 
+	public void WriteToFile(String filename)
+	{
+		WriteConfigFile(filename, objectList);
+	}
 
-    public ConfigVariableObjectType GetConfigValue(String configPath, boolean resolveReference)
-    {
-        return ConfigReader.GetConfigValue(configPath, objectList, resolveReference);
-    }
+	public void DisplayTokens()
+	{
+		PrintTokens(objectList);
+	}
 
-    public ConfigVariableObjectType GetConfigValue(String configPath)
-    {
-        return ConfigReader.GetConfigValue(configPath, objectList, true);
-    }
+	public ConfigVariableObjectType GetConfigValue(String configPath, boolean resolveReference)
+	{
+		return GetValue(configPath, objectList, resolveReference);
+	}
 
-    public String GetConfigValueString(String configPath, boolean resolveReference)
-    {
-        return ConfigReader.GetConfigValue(configPath, objectList, resolveReference).toString();
-    }
+	public ConfigVariableObjectType GetConfigValue(String configPath)
+	{
+		return GetValue(configPath, objectList, true);
+	}
 
-    public String GetConfigValueString(String configPath)
-    {
-        return ConfigReader.GetConfigValue(configPath, objectList, true).genericToString();
-    }
+	public String GetConfigValueString(String configPath, boolean resolveReference)
+	{
+		return GetValue(configPath, objectList, resolveReference).toString();
+	}
+
+	public String GetConfigValueString(String configPath)
+	{
+		return GetValue(configPath, objectList, true).genericToString();
+	}
 
 }
