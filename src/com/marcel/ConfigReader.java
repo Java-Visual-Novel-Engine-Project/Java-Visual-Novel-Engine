@@ -200,7 +200,8 @@ public class ConfigReader {
 
 	private static final String validVarChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_0123456789-äöü";
 
-	public static List<ConfigObject> ReadConfigString(String data) throws Exception {
+	public static List<ConfigObject> ReadConfigString(String data) throws Exception
+	{
 
 		List<ConfigObject> objectList = new ArrayList<>();
 
