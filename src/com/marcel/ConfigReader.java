@@ -17,7 +17,8 @@ import static com.marcel.Util.puts;
 
 public class ConfigReader {
 
-	public static List<ConfigObject> ReadConfigFile(String filename) throws Exception {
+	public static List<ConfigObject> ReadConfigFile(String filename) throws Exception
+	{
 
 		Path path = Paths.get(filename);
 
