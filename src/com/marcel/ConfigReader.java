@@ -10,6 +10,7 @@ import java.nio.file.Paths;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
+
 import com.marcel.ConfigErrors.*;
 
 import static com.marcel.ConfigTokens.*;
@@ -104,7 +105,9 @@ public class ConfigReader {
 		{
 			if (data.charAt(start) == '\n')
 				break;
+
 			start--;
+
 			counter--;
 		}
 
@@ -114,7 +117,9 @@ public class ConfigReader {
 		{
 			if (data.charAt(end) == '\n')
 				break;
+
 			end++;
+
 			counter--;
 		}
 
@@ -144,13 +149,16 @@ public class ConfigReader {
 				throw new UnterminatedCommentException("( Comment was not closed!", GetContext(data, cursorPosition));
 
 			cursorPosition = data.indexOf(')', cursorPosition);
+
 			cursorPosition++;
+
 			return cursorPosition;
 		}
 
 		if (current == '\"' && skipString)
 		{
 			current = ' ';
+
 			cursorPosition++;
 
 			int tempPos = cursorPosition;
@@ -197,7 +205,6 @@ public class ConfigReader {
 		return cursorPosition;
 	}
 
-
 	private static final String validVarChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_0123456789-äöü";
 
 	public static List<ConfigObject> ReadConfigString(String data) throws Exception
@@ -233,12 +240,19 @@ public class ConfigReader {
 
 				int labelEndPosition = data.indexOf(']', cursorPosition);
 
-				if (labelEndPosition == -1 || ( labelEndPosition > data.indexOf('[', cursorPosition + 1) && data.indexOf('[', cursorPosition + 1) != -1))
-					throw new UnterminatedLabelHeadException("] was not found!", GetContext(data, cursorPosition));
+				boolean isError = labelEndPosition == -1 || (
+					labelEndPosition > data.indexOf('[', cursorPosition + 1) &&
+					data.indexOf('[', cursorPosition + 1) != -1
+				);
+
+				if (isError) {
+					throw new UnterminatedLabelHeadException(
+						"] was not found!", GetContext(data, cursorPosition)
+					);
+				}
 
 				String label = data.substring(
-					cursorPosition + 1,
-					labelEndPosition
+					cursorPosition + 1, labelEndPosition
 				);
 
 				cursorPosition = labelEndPosition + 1;
@@ -434,8 +448,7 @@ public class ConfigReader {
 					//puts("VALUE: \"" + value + "\"");
 
 					ConfigVariableObject obj = new ConfigVariableObject( // make new VariableObject with a VariableStringObject with the variable data
-						varName,
-						new ConfigVariableReference(value)
+						varName, new ConfigVariableReference(value)
 					);
 
 					objectList.add(obj); // add the object to the actual ObjectThing List
@@ -495,13 +508,12 @@ public class ConfigReader {
 
 					//puts("BRACKET DATA:\n<" + data.substring(startBracket + 1, endBracket) + ">\n");
 
-					List<ConfigVariableObjectType> tempList = ReadConfigStringArray(" "+data.substring(startBracket + 1, endBracket) +" ");
+					List<ConfigVariableObjectType> tempList = ReadConfigStringArray(" " + data.substring(startBracket + 1, endBracket) + " ");
 
 					//ConfigLabelObject labelObject = new ConfigLabelObject(label, tempList.toArray(new ConfigObject[0]));
 
 					ConfigVariableObject obj = new ConfigVariableObject(
-						varName,
-						new ConfigVariableArray(tempList.toArray(new ConfigVariableObjectType[0]))
+						varName, new ConfigVariableArray(tempList.toArray(new ConfigVariableObjectType[0]))
 					);
 
 					objectList.add(obj);
@@ -566,7 +578,7 @@ public class ConfigReader {
 
 					//puts("BRACKET DATA:\n<" + data.substring(startBracket + 1, endBracket) + ">\n");
 
-					List<ConfigObject> tempList = ReadConfigString(" "+data.substring(startBracket + 1, endBracket) +" ");
+					List<ConfigObject> tempList = ReadConfigString(" " + data.substring(startBracket + 1, endBracket) + " ");
 					//ConfigLabelObject labelObject = new ConfigLabelObject(label, tempList.toArray(new ConfigObject[0]));
 
 					List<ConfigVariableObject> vars = new ArrayList<>();
@@ -600,7 +612,7 @@ public class ConfigReader {
 
 					int valueEnd = cursorPosition;
 
-					String value = data.substring(valueStart, valueEnd-1); // get string data
+					String value = data.substring(valueStart, valueEnd - 1); // get string data
 					//puts("VALUE: \"" + value + "\"");
 
 					ConfigVariableObject obj;
@@ -610,15 +622,13 @@ public class ConfigReader {
 					if (value.equals("true"))
 					{
 						obj = new ConfigVariableObject( // make new VariableObject with a VariableStringObject with the variable data
-							varName,
-							new ConfigVariableBoolean(true)
+							varName, new ConfigVariableBoolean(true)
 						);
 					}
 					else if (value.equals("false"))
 					{
 						obj = new ConfigVariableObject( // make new VariableObject with a VariableStringObject with the variable data
-							varName,
-							new ConfigVariableBoolean(false)
+							varName, new ConfigVariableBoolean(false)
 						);
 					}
 					else
@@ -640,14 +650,11 @@ public class ConfigReader {
 }
 
 	public static List<ConfigVariableObjectType> ReadConfigStringArray(String data) throws Exception {
+
 		List<ConfigVariableObjectType> objectList = new ArrayList<>();
 
 		int contentSize = data.length();
 		int cursorPosition = 0;
-
-		//CT. new ConfigLabelObject("Test_Label_2", __);
-
-		//('[', '/', '(')
 
 		while (cursorPosition < contentSize) {
 
@@ -686,14 +693,16 @@ public class ConfigReader {
 					while (current != '\"')
 					{
 						current = data.charAt(cursorPosition);
+
 						if (current == '\\')
 							cursorPosition++;
+
 						cursorPosition++;
 					}
 
 					int valueEnd = cursorPosition;
 
-					String value = data.substring(valueStart+1, valueEnd-1); // get string data
+					String value = data.substring(valueStart + 1, valueEnd - 1); // get string data
 
 					//puts("VALUE: \"" + value + "\"");
 
@@ -711,14 +720,16 @@ public class ConfigReader {
 					while (".0123456789".indexOf(current) != -1)
 					{
 						current = data.charAt(cursorPosition);
+
 						if (current == '-')
 							throw new InvalidNumberException("Minus Symbol can't be mid Number.", GetContext(data, cursorPosition));
+
 						cursorPosition++;
 					}
 
 					int valueEnd = cursorPosition;
 
-					String value = data.substring(valueStart, valueEnd-1); // get string data
+					String value = data.substring(valueStart, valueEnd - 1); // get string data
 
 					//puts("VALUE: \"" + value + "\"");
 
@@ -740,7 +751,7 @@ public class ConfigReader {
 
 					int valueEnd = cursorPosition;
 
-					String value = data.substring(valueStart+1, valueEnd); // get string data
+					String value = data.substring(valueStart + 1, valueEnd); // get string data
 
 					//puts("VALUE: \"" + value + "\"");
 
@@ -809,7 +820,7 @@ public class ConfigReader {
 
 					//puts("BRACKET DATA:\n<" + data.substring(startBracket + 1, endBracket) + ">\n");
 
-					List<ConfigVariableObjectType> tempList = ReadConfigStringArray(" "+data.substring(startBracket + 1, endBracket) +" ");
+					List<ConfigVariableObjectType> tempList = ReadConfigStringArray(" " + data.substring(startBracket + 1, endBracket) + " ");
 
 					//ConfigLabelObject labelObject = new ConfigLabelObject(label, tempList.toArray(new ConfigObject[0]));
 
@@ -876,7 +887,7 @@ public class ConfigReader {
 
 					//puts("BRACKET DATA:\n<" + data.substring(startBracket + 1, endBracket) + ">\n");
 
-					List<ConfigObject> tempList = ReadConfigString(" "+data.substring(startBracket + 1, endBracket) +" ");
+					List<ConfigObject> tempList = ReadConfigString(" " + data.substring(startBracket + 1, endBracket) + " ");
 					//ConfigLabelObject labelObject = new ConfigLabelObject(label, tempList.toArray(new ConfigObject[0]));
 
 					List<ConfigVariableObject> vars = new ArrayList<>();
@@ -927,7 +938,6 @@ public class ConfigReader {
 
 					continue;
 				}
-
 
 			}
 
