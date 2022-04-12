@@ -9,7 +9,7 @@ import static com.marcel.Util.puts;
 public class Main {
 
 	public static void main(String[] args)
-  {
+	{
 		try
 	  {
 			realMain();
