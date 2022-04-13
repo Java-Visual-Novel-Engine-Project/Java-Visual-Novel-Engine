@@ -1,8 +1,6 @@
 package com.marcel;
 
-import java.util.List;
-import com.marcel.ConfigErrors.*;
-import  com.marcel.ConfigFile;
+import com.marcel.RACF.ConfigFile;
 
 import static com.marcel.Util.puts;
 
@@ -25,11 +23,19 @@ public class Main {
 	{
 		puts("Starting...");
 
-		ConfigFile file = new ConfigFile("Test Visual Novel/config.cfg");
+		ConfigFile file = new ConfigFile("Test Visual Novel/config.racf");
 
 		file.DisplayTokens();
 
 		puts("TESTING: " + file.GetConfigValueString("Settings.test"));
+
+
+
+
+
+
+
+
 	}
 
 }

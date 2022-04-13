@@ -1,13 +1,13 @@
-package com.marcel;
+package com.marcel.RACF;
 
 import java.util.List;
 
-import static com.marcel.ConfigTokens.*;
+import static com.marcel.RACF.ConfigTokens.*;
 
-import static com.marcel.ConfigReader.ReadConfigFile;
-import static com.marcel.ConfigReader.WriteConfigFile;
-import static com.marcel.ConfigReader.PrintTokens;
-import static com.marcel.ConfigReader.GetValue;
+import static com.marcel.RACF.ConfigReader.ReadConfigFile;
+import static com.marcel.RACF.ConfigReader.WriteConfigFile;
+import static com.marcel.RACF.ConfigReader.PrintTokens;
+import static com.marcel.RACF.ConfigReader.GetValue;
 
 public class ConfigFile {
 
