@@ -94,25 +94,28 @@ public class VNWindow {
 			{
 				ImageObject obj = (ImageObject) object;
 
-				g2d.drawImage(obj.image, obj.x, obj.y, obj.width, obj.height, null);
+				g2d.drawImage(obj.image, obj.topLeftPos.x, obj.topLeftPos.y, obj.size.width, obj.size.height, null);
 			}
 			else if (object instanceof	ButtonObject)
 			{
 				ButtonObject obj = (ButtonObject) object;
 
 				Font font = new Font("Courier New", Font.BOLD,(int)obj.textSize);
+
 				g2d.setFont(font);
+
 				FontMetrics metrics = getFontMetrics(font);
-				int w = metrics.stringWidth(" " + obj.text + " ");
+
+				int w = metrics.stringWidth(" " + obj.label + " ");
 				int h = (int)(metrics.getHeight() * 1.5);
 
-				g2d.setColor(obj.backgroundCol);
-				g2d.fillRect(obj.x, obj.y, w, h);
+				g2d.setColor(obj.bgColor);
+				g2d.fillRect(obj.topLeftPos.x, obj.topLeftPos.y, w, h);
 
 				g2d.setColor(Color.black);
-				g2d.drawRect(obj.x, obj.y, w, h);
+				g2d.drawRect(obj.topLeftPos.x, obj.topLeftPos.y, w, h);
 
-				g2d.drawString(obj.text, obj.x + metrics.charWidth(' '), obj.y + metrics.getHeight());
+				g2d.drawString(obj.label, obj.topLeftPos.x + metrics.charWidth(' '), obj.topLeftPos.y + metrics.getHeight());
 
 			}
 		}
@@ -132,7 +135,9 @@ public class VNWindow {
 
 				int x = Math.abs(r.nextInt()) % w;
 				int y = Math.abs(r.nextInt()) % h;
+
 				g2d.drawLine(x, y, x, y);
+
 			}
 
 			// h / w
@@ -155,7 +160,7 @@ public class VNWindow {
 				{
 					int index = 0;
 					for (int i = 0; i < tempObjs.size(); i++)
-						if (tempObjs.get(i).z < tempObjs.get(index).z)
+						if (tempObjs.get(i).layerOrder < tempObjs.get(index).layerOrder)
 							index = i;
 
 					RenderObject(tempObjs.get(index), g2d);

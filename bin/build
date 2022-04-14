@@ -4,13 +4,14 @@ mdfind -onlyin src/com/marcel java > sources.txt
 
 javac @sources.txt -d tmp/
 
-cd tmp && jar cfm vne.jar "../Visual Novel Engine.mf" com/marcel/*.class
+cd tmp && jar cfm vne.jar "../Visual Novel Engine.mf" com/marcel/*
 
 cd ..
 
 cp tmp/vne.jar "build/Visual Novel Engine.jar"
 
 cd build && java -jar "Visual Novel Engine.jar"
+
 
 #rm -rf build/vne.app
 
