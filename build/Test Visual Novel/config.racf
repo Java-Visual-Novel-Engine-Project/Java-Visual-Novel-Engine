@@ -1,8 +1,7 @@
 [Settings]
 {
-	test = "QUOTE\" lol"
-	
-	Test = [[1,2,3], [4,5,6], {a = "bruh", tomato = false}];
+	test = "testing"
+	//test2 = {bruh = 1, bruh_2 = "BRUUUUUUUUUUUUUUUH"}
 	
 	[Paths] // a
 	{
@@ -14,5 +13,4 @@
 }
 
 //Settings.Paths.Settings_File
-//Settings.Array[0] // possible add Indexing
 

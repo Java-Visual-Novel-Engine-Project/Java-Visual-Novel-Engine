@@ -1,10 +1,7 @@
 package com.marcel;
 
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.event.*;
 import java.sql.Array;
 import java.util.*;
 import java.util.List;
@@ -88,6 +85,38 @@ public class VNWindow {
 			return timer;
 		}
 
+		public void RenderString(String text, Point topLeft, Point bottomRight, FontMetrics metrics, Graphics2D g2d)
+		{
+			int start_x = topLeft.x;
+			int start_y = topLeft.y;
+
+			int x = start_x;
+			int y = start_y;
+
+			for (int i = 0; i < text.length(); i++)
+			{
+				char chr = text.charAt(i);
+
+				if (chr == '\n')
+				{
+					x = start_x;
+					y += metrics.getHeight();
+				}
+				else
+				{
+					if (bottomRight == null)
+						g2d.drawString(chr + "", x, y);
+					else
+						{
+							if ((x + metrics.charWidth(chr)) <= bottomRight.x && y <= bottomRight.y)
+								g2d.drawString(chr + "", x, y);
+						}
+					x += metrics.charWidth(chr);
+				}
+			}
+		}
+
+
 		private void RenderObject(SceneObject object, Graphics2D g2d)
 		{
 			if (object instanceof ImageObject)
@@ -106,16 +135,79 @@ public class VNWindow {
 
 				FontMetrics metrics = getFontMetrics(font);
 
-				int w = metrics.stringWidth(" " + obj.label + " ");
+				int w = metrics.stringWidth("  "); // metrics.stringWidth(" " + obj.label + " ");
 				int h = (int)(metrics.getHeight() * 1.5);
+
+				if (obj.enforceDimensions)
+				{
+					w = obj.size.width;
+					h = obj.size.height;
+				}
+				else
+				{
+					int x = 0;
+					int max_x = 0;
+					for (int i = 0; i < obj.label.length(); i++)
+					{
+						char chr = obj.label.charAt(i);
+
+						if (chr == '\n')
+						{
+							if (x > max_x)
+								max_x = x;
+							x = 0;
+							h += metrics.getHeight();
+						}
+						else
+						{
+							x += metrics.charWidth(chr);
+						}
+					}
+					if (x > max_x)
+						max_x = x;
+					w += max_x;
+				}
+
+
+				obj.center.x = w/2;
+				obj.center.y = h/2;
+
 
 				g2d.setColor(obj.bgColor);
 				g2d.fillRect(obj.topLeftPos.x, obj.topLeftPos.y, w, h);
 
-				g2d.setColor(Color.black);
-				g2d.drawRect(obj.topLeftPos.x, obj.topLeftPos.y, w, h);
+				if (currentScene.selectedObject ==  obj)
+					g2d.setColor(obj.selectedBorderColor);
+				else
+					g2d.setColor(obj.borderColor);
 
-				g2d.drawString(obj.label, obj.topLeftPos.x + metrics.charWidth(' '), obj.topLeftPos.y + metrics.getHeight());
+				{
+					int x1 = obj.topLeftPos.x;
+					int y1 = obj.topLeftPos.y;
+					int x2 = w;
+					int y2 = h;
+					for (int i = 0; i < obj.thickness; i++)
+					{
+						g2d.drawRect(x1,y1, x2, y2);
+						x1++;
+						y1++;
+						x2 -= 2;
+						y2 -= 2;
+					}
+				}
+
+				//g2d.drawString(obj.label, obj.topLeftPos.x + metrics.charWidth(' '), obj.topLeftPos.y + metrics.getHeight());
+
+				g2d.setColor(obj.textColor);
+
+				Point tl = new Point(obj.topLeftPos.x + metrics.charWidth(' '), obj.topLeftPos.y + metrics.getHeight());
+				Point br = new Point(obj.topLeftPos.x + (w - metrics.charWidth(' ')), obj.topLeftPos.y + (h - (int)(0.5 * metrics.getHeight())));
+
+				if (obj.enforceDimensions)
+					RenderString(obj.label, tl, br, metrics, g2d);
+				else
+					RenderString(obj.label, tl, null, metrics, g2d);
+
 
 			}
 		}
@@ -212,6 +304,18 @@ public class VNWindow {
 			initUI(title, x, y);
 		}
 
+		private void HandleKeyEvent(KeyEvent e)
+		{
+			if (e.getKeyCode() == KeyEvent.VK_UP)
+				surface.currentScene.changeSelectedButton(new Point(0, -1));
+			if (e.getKeyCode() == KeyEvent.VK_DOWN)
+				surface.currentScene.changeSelectedButton(new Point(0, 1));
+			if (e.getKeyCode() == KeyEvent.VK_LEFT)
+				surface.currentScene.changeSelectedButton(new Point(-1, 0));
+			if (e.getKeyCode() == KeyEvent.VK_RIGHT)
+				surface.currentScene.changeSelectedButton(new Point(1, 0));
+		}
+
 		private void initUI(String title, int x, int y) {
 
 			surface = new Surface(this);
@@ -223,6 +327,12 @@ public class VNWindow {
 				public void windowClosing(WindowEvent e) {
 					Timer timer = surface.getTimer();
 					timer.stop();
+				}
+			});
+
+			addKeyListener(new KeyAdapter(){
+				public void keyPressed(KeyEvent e){
+					HandleKeyEvent(e);
 				}
 			});
 

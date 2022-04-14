@@ -36,6 +36,8 @@ public class Main {
 
 		//puts("TESTING 2: " + file.GetConfigValueString("Settings.Test[$Settings.Test[0][1]][a]"));
 
+		//puts("TESTING 2: " + file.GetConfigValueString("Settings.test2[bruh_2]"));
+
 		/*
 		EventQueue.invokeLater(new Runnable() {
 			@Override
@@ -108,6 +110,43 @@ public class Main {
 		*/
 		{
 			ButtonObject button = new ButtonObject(
+					name("Play 1"),
+					topLeftPos(new Point(300, 100)),
+					size(new Size(100, 50)),
+					layerOrder(2),
+					label("Bruh"),
+					bgColor(Color.RED),
+					borderColor(Color.GREEN),
+					textSize(30),
+					textColor(Color.black),
+					thickness(4)
+			);
+
+			title.objects.add(button);
+		}
+
+		{
+			ButtonObject button = new ButtonObject(
+					name("Play 2"),
+					topLeftPos(new Point(300, 300)),
+					size(new Size(146, 70)),
+					layerOrder(2),
+					label("B r u h\n2221"),
+					bgColor(Color.BLACK),
+					textSize(40),
+					textColor(Color.white),
+					borderColor(Color.yellow),
+					enforceDimensions(true),
+					thickness(5)
+			);
+
+			title.objects.add(button);
+		}
+
+
+
+		{
+			ButtonObject button = new ButtonObject(
 				name("Play"),
 				topLeftPos(new Point(600, 300)),
 				size(new Size(100, 50)),
@@ -116,12 +155,14 @@ public class Main {
 				bgColor(Color.CYAN),
 				textSize(20),
 				textColor(Color.black),
-				thickness(2)
+				thickness(3)
 			);
 
 			title.objects.add(button);
 
-			while (true)
+			title.selectedObject = button;
+
+/*			while (true)
 			{
 				//button.topLeftPos.x--;
 				//button.topLeftPos.y--;
@@ -130,7 +171,7 @@ public class Main {
 				// Maybe Make Buttons work with \n char to make multi line Button (if ya can do it)
 				// Make Button map
 				Thread.sleep(10);
-			}
+			}*/
 		}
 
 		//window.surface.AddImage("background", getPath(file.GetConfigValueString("Settings.Paths.Title_Background")));

@@ -10,7 +10,7 @@ class ButtonObject extends SceneObject
 {
     public static class ButtonParams
     {
-        enum Names { NAME, TOP_LEFT_POS, SIZE, LAYER_ORDER, LABEL, BG_COLOR, TEXT_SIZE, TEXT_COLOR, THICKNESS, ENFORCE_DIMENSIONS }
+        enum Names { NAME, TOP_LEFT_POS, SIZE, LAYER_ORDER, LABEL, BG_COLOR, TEXT_SIZE, TEXT_COLOR, BORDER_COLOR, SELECTED_BORDER_COLOR, THICKNESS, ENFORCE_DIMENSIONS }
 
         public static Param name(String name)          { return param(NAME, name); }
         public static Param topLeftPos(Point point)    { return param(TOP_LEFT_POS, point); }
@@ -20,8 +20,11 @@ class ButtonObject extends SceneObject
         public static Param bgColor(Color bgColor)     { return param(BG_COLOR, bgColor); }
         public static Param textSize(double textSize)  { return param(TEXT_SIZE, textSize); }
         public static Param textColor(Color textColor) { return param(TEXT_COLOR, textColor); }
+        public static Param borderColor(Color borderColor) { return param(BORDER_COLOR, borderColor); }
+        public static Param selectedBorderColor(Color selectedBorderColor) { return param(SELECTED_BORDER_COLOR, selectedBorderColor); }
         public static Param thickness(int thickness)   { return param(THICKNESS, thickness); }
         public static Param enforceDimensions(boolean enforce)   { return param(ENFORCE_DIMENSIONS, enforce); }
+
     }
 
     public static HashMap<Point, ButtonObject> PosInstMap = new HashMap<Point, ButtonObject>();
@@ -32,9 +35,13 @@ class ButtonObject extends SceneObject
 
     public double textSize;
     public Color textColor;
+    public Color borderColor;
+    public Color selectedBorderColor;
 
     public int thickness;
     public boolean enforceDimensions;
+
+    public Point center;
 
     public ButtonObject(Param... params)
     {
@@ -47,9 +54,14 @@ class ButtonObject extends SceneObject
         this.bgColor = getParam(params, BG_COLOR, Color.WHITE);
         this.textSize = getParam(params, TEXT_SIZE, 20.0);
         this.textColor =  getParam(params, TEXT_COLOR, Color.black);
-        this.thickness = getParam(params, THICKNESS, 0);
+        this.borderColor =  getParam(params, BORDER_COLOR, Color.black);
+        this.selectedBorderColor =  getParam(params, SELECTED_BORDER_COLOR, Color.MAGENTA);
+
+        this.thickness = getParam(params, THICKNESS, 1);
 
         this.enforceDimensions = getParam(params, ENFORCE_DIMENSIONS, false);
+
+        this.center = new Point(topLeftPos.x, topLeftPos.y);
 
     }
 }

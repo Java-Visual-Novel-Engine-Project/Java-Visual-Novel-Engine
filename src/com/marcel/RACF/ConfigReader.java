@@ -173,11 +173,8 @@ public class ConfigReader {
 				{
 					if (object instanceof ConfigVariableObject)
 					{
-						int index = Integer.parseInt(data);
-						if (((ConfigVariableObject)object).variable instanceof ConfigVariableDictionary)
+						if (((ConfigVariableObject)object).variable instanceof ConfigVariableDictionary dict)
 						{
-							ConfigVariableDictionary dict = (ConfigVariableDictionary) ((ConfigVariableObject)object).variable;
-
 							ConfigVariableObject obj = GetVarFromDictUsingName(data, dict);
 
 							if (obj == null)
@@ -190,10 +187,8 @@ public class ConfigReader {
 							throw  new Exception("Object is not a Dictionary!");
 						}
 					}
-					else if (object instanceof ConfigVariableDictionary)
+					else if (object instanceof ConfigVariableDictionary dict)
 					{
-						ConfigVariableDictionary dict = (ConfigVariableDictionary) object;
-
 						ConfigVariableObject obj = GetVarFromDictUsingName(data, dict);
 
 						if (obj == null)
