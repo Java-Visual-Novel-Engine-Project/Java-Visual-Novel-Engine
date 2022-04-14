@@ -32,16 +32,16 @@ public class Main {
 
 		puts("TESTING: " + file.GetConfigValueString("Settings.test"));
 
-
-
-/*		EventQueue.invokeLater(new Runnable() {
+		/*
+		EventQueue.invokeLater(new Runnable() {
 			@Override
 			public void run() {
 
 				VNWindow.MainWindow window = new VNWindow.MainWindow("VN Engine - Testing", 1080, 720);
 				window.setVisible(true);
 			}
-		});*/
+		});
+		*/
 
 		VNWindow.MainWindow window = new VNWindow.MainWindow("VN Engine - Testing", 1080, 720);
 		window.setVisible(true);
@@ -84,12 +84,7 @@ public class Main {
 			}
 		}
 
-
-
 		//window.surface.AddImage("background", getPath(file.GetConfigValueString("Settings.Paths.Title_Background")));
-
-
-
 
 	}
 
