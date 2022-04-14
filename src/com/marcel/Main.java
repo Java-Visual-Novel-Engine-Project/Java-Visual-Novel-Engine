@@ -2,6 +2,8 @@ package com.marcel;
 
 import com.marcel.RACF.ConfigFile;
 
+import java.awt.*;
+
 import static com.marcel.Util.puts;
 
 public class Main {
@@ -29,6 +31,16 @@ public class Main {
 
 		puts("TESTING: " + file.GetConfigValueString("Settings.test"));
 
+
+
+		EventQueue.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+
+				VNWindow.PointsEx ex = new VNWindow.PointsEx("VN Engine - Testing", 1080, 720);
+				ex.setVisible(true);
+			}
+		});
 
 
 
