@@ -5,6 +5,7 @@
 	[Paths] // a
 	{
 		Settings_File = "settings.racf"
+		Title_Background = "Assets/Art/Background/title_background.jfif"
 	}
 	
 	/* This is a comment lol *  a */

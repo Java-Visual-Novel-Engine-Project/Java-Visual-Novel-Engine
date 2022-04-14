@@ -6,4 +6,8 @@ public class Util {
 	  System.out.println(args[0]);
   }
 
+  private static String tempString = "Test Visual Novel/";
+
+  public static String getPath(String path) {return tempString + path;}
+
 }
