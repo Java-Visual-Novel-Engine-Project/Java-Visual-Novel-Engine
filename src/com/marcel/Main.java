@@ -79,6 +79,7 @@ public class Main {
 				button.y--;
 				// Make Button move with arrow keys
 				// Maybe Make Buttons work with \n char to make multi line Button (if ya can do it)
+				// Make Button map
 				Thread.sleep(10);
 			}
 		}
