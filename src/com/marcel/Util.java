@@ -8,6 +8,6 @@ public class Util {
 
   private static String tempString = "Test Visual Novel/";
 
-  public static String getPath(String path) {return tempString + path;}
+  public static String getPath(String path) { return tempString + path; }
 
 }

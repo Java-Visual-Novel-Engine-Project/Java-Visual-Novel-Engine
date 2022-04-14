@@ -16,14 +16,13 @@ public class Scene {
 
 }
 
-
-
 class SceneObject
 {
     public String name;
     public int x, y, z;
     public int width, height;
 }
+
 class ImageObject extends SceneObject
 {
     public Image image;

@@ -17,226 +17,217 @@ import static com.marcel.Util.puts;
 
 public class VNWindow {
 
-    static class Surface extends JPanel implements ActionListener {
+	static class Surface extends JPanel implements ActionListener {
+
+		private final int DELAY = 20;
+		private Timer timer;
+		private JFrame frame;
 
-        private final int DELAY = 20;
-        private Timer timer;
-        private JFrame frame;
+		public Scene currentScene;
 
-        public Scene currentScene;
+		/*
+		private List<ImageData> imgs;
 
+		private ImageData getImageData(String name)
+		{
+			for (ImageData temp : imgs)
+				if (temp.name.equals(name))
+					return temp;
 
+			return null;
+		}
 
-/*
+		private int getIndexOfImageData(String name)
+		{
+			for (int i = 0; i < imgs.size(); i++)
+				if (imgs.get(i).name.equals(name))
+					return i;
 
-        private List<ImageData> imgs;
+			return -1;
+		}
+		*/
 
-        private ImageData getImageData(String name)
-        {
-            for (ImageData temp : imgs)
-                if (temp.name.equals(name))
-                    return temp;
+		public Surface(JFrame frame) {
+			//imgs = new ArrayList<ImageData>();
+			this.frame = frame;
+			initTimer();
+		}
 
-            return null;
-        }
+		/*
+		public void AddImage(String name, String path)
+		{
+			if (getImageData(name) != null)
+				return;
 
-        private int getIndexOfImageData(String name)
-        {
-            for (int i = 0; i < imgs.size(); i++)
-                if (imgs.get(i).name.equals(name))
-                    return i;
+			ImageData temp = new ImageData(name, new ImageIcon(path).getImage(), 0, 0);
+			imgs.add(temp);
 
-            return -1;
-        }
+		}
 
-*/
+		public void RemoveImage(String name)
+		{
+			int index = getIndexOfImageData(name);
+			if (index != -1)
+				imgs.remove(index);
+		}
+
+		public ImageData GetImage(String name)
+		{
+			return getImageData(name);
+		}
+		*/
+
+		private void initTimer() {
+
+			timer = new Timer(DELAY, this);
+			timer.start();
+		}
+
+		public Timer getTimer() {
+
+			return timer;
+		}
+
+		private void RenderObject(SceneObject object, Graphics2D g2d)
+		{
+			if (object instanceof ImageObject)
+			{
+				ImageObject obj = (ImageObject) object;
+
+				g2d.drawImage(obj.image, obj.x, obj.y, obj.width, obj.height, null);
+			}
+			else if (object instanceof	ButtonObject)
+			{
+				ButtonObject obj = (ButtonObject) object;
+
+				Font font = new Font("Courier New", Font.BOLD,(int)obj.textSize);
+				g2d.setFont(font);
+				FontMetrics metrics = getFontMetrics(font);
+				int w = metrics.stringWidth(" " + obj.text + " ");
+				int h = (int)(metrics.getHeight() * 1.5);
 
-        public Surface(JFrame frame) {
-            //imgs = new ArrayList<ImageData>();
-            this.frame = frame;
-            initTimer();
-        }
+				g2d.setColor(obj.backgroundCol);
+				g2d.fillRect(obj.x, obj.y, w, h);
 
-        /*public void AddImage(String name, String path)
-        {
-            if (getImageData(name) != null)
-                return;
+				g2d.setColor(Color.black);
+				g2d.drawRect(obj.x, obj.y, w, h);
 
-            ImageData temp = new ImageData(name, new ImageIcon(path).getImage(), 0, 0);
-            imgs.add(temp);
+				g2d.drawString(obj.text, obj.x + metrics.charWidth(' '), obj.y + metrics.getHeight());
 
-        }
+			}
+		}
 
-        public void RemoveImage(String name)
-        {
-            int index = getIndexOfImageData(name);
-            if (index != -1)
-                imgs.remove(index);
-        }
+		private void doDrawing(Graphics g) {
 
-        public ImageData GetImage(String name)
-        {
-            return getImageData(name);
-        }*/
+			Graphics2D g2d = (Graphics2D) g;
 
+			g2d.setPaint(Color.blue);
 
-        private void initTimer() {
+			int w = getWidth();
+			int h = getHeight();
 
-            timer = new Timer(DELAY, this);
-            timer.start();
-        }
+			Random r = new Random();
+
+			for (int i = 0; i < 1; i++) {
 
-        public Timer getTimer() {
+				int x = Math.abs(r.nextInt()) % w;
+				int y = Math.abs(r.nextInt()) % h;
+				g2d.drawLine(x, y, x, y);
+			}
 
-            return timer;
-        }
+			// h / w
+			// x = w
 
-        private void RenderObject(SceneObject object, Graphics2D g2d)
-        {
-            if (object instanceof ImageObject)
-            {
-                ImageObject obj = (ImageObject) object;
+			if (currentScene == null)
+			{
+				g2d.setColor(Color.BLACK);
+				g2d.fillRect(0,0, w, h);
+			}
+			else
+			{
+				g2d.setColor(Color.BLACK);
+				g2d.fillRect(0,0, w, h);
 
-                g2d.drawImage(obj.image, obj.x, obj.y, obj.width, obj.height, null);
-            }
-            else if (object instanceof  ButtonObject)
-            {
-                ButtonObject obj = (ButtonObject) object;
+				List<SceneObject> tempObjs = new ArrayList<>();
+				tempObjs.addAll(currentScene.objects);
 
-                Font font = new Font("Courier New", Font.BOLD,(int)obj.textSize);
-                g2d.setFont(font);
-                FontMetrics metrics = getFontMetrics(font);
-                int w = metrics.stringWidth(" " + obj.text + " ");
-                int h = (int)(metrics.getHeight() * 1.5);
+				while (tempObjs.size() > 0)
+				{
+					int index = 0;
+					for (int i = 0; i < tempObjs.size(); i++)
+						if (tempObjs.get(i).z < tempObjs.get(index).z)
+							index = i;
 
-                g2d.setColor(obj.backgroundCol);
-                g2d.fillRect(obj.x, obj.y, w, h);
+					RenderObject(tempObjs.get(index), g2d);
+					tempObjs.remove(index);
+				}
+			}
 
-                g2d.setColor(Color.black);
-                g2d.drawRect(obj.x, obj.y, w, h);
+			/*
+			for (int i = 0; i < imgs.size(); i++)
+			{
+				ImageData temp = imgs.get(i);
 
-                g2d.drawString(obj.text, obj.x + metrics.charWidth(' '), obj.y + metrics.getHeight());
+				//puts("X: " + temp.x);
+				puts("Y: " + temp.y);
+				puts("Screen X:" + w);
+				puts("Screen Y:" + h);
+				puts("new Y: " + (int) ((w*temp.y)/((double)temp.x)));
+				puts("");*//*
 
-            }
-        }
+				double newratio = w / (double)temp.image.getWidth(null);
+				if ((h / (double)temp.image.getHeight(null)) > newratio)
+					newratio = h / (double)temp.image.getHeight(null);
 
+				g2d.drawImage(temp.image, temp.x, temp.y,(int)(temp.image.getWidth(null) * newratio), (int)(temp.image.getHeight(null) * newratio), null);
+			}
+			*/
 
-        private void doDrawing(Graphics g) {
+		}
 
-            Graphics2D g2d = (Graphics2D) g;
+		@Override
+		public void paintComponent(Graphics g) {
+			super.paintComponent(g);
+			doDrawing(g);
+		}
 
-            g2d.setPaint(Color.blue);
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			//System.out.println(e.toString());
+			repaint();
+		}
+	}
 
-            int w = getWidth();
-            int h = getHeight();
+	public static class MainWindow extends JFrame {
 
-            Random r = new Random();
+		public Surface surface;
 
-            for (int i = 0; i < 1; i++) {
+		public MainWindow(String title, int x, int y) {
 
-                int x = Math.abs(r.nextInt()) % w;
-                int y = Math.abs(r.nextInt()) % h;
-                g2d.drawLine(x, y, x, y);
-            }
+			initUI(title, x, y);
+		}
 
-            // h / w
-            // x = w
+		private void initUI(String title, int x, int y) {
 
-            if (currentScene == null)
-            {
-                g2d.setColor(Color.BLACK);
-                g2d.fillRect(0,0, w, h);
-            }
-            else
-            {
-                g2d.setColor(Color.BLACK);
-                g2d.fillRect(0,0, w, h);
+			surface = new Surface(this);
+			add(surface);
 
-                List<SceneObject> tempObjs = new ArrayList<>();
-                tempObjs.addAll(currentScene.objects);
 
-                while (tempObjs.size() > 0)
-                {
-                    int index = 0;
-                    for (int i = 0; i < tempObjs.size(); i++)
-                        if (tempObjs.get(i).z < tempObjs.get(index).z)
-                            index = i;
+			addWindowListener(new WindowAdapter() {
+				@Override
+				public void windowClosing(WindowEvent e) {
+					Timer timer = surface.getTimer();
+					timer.stop();
+				}
+			});
 
-                    RenderObject(tempObjs.get(index), g2d);
-                    tempObjs.remove(index);
-                }
-            }
+			setTitle(title);
+			setSize(x, y);
+			setLocationRelativeTo(null);
+			setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+			setResizable(false);
+		}
 
-
-
-            /*for (int i = 0; i < imgs.size(); i++)
-            {
-                ImageData temp = imgs.get(i);
-
-*//*                puts("X: " + temp.x);
-                puts("Y: " + temp.y);
-                puts("Screen X:" + w);
-                puts("Screen Y:" + h);
-                puts("new Y: " + (int) ((w*temp.y)/((double)temp.x)));
-                puts("");*//*
-
-
-                double newratio = w / (double)temp.image.getWidth(null);
-                if ((h / (double)temp.image.getHeight(null)) > newratio)
-                    newratio = h / (double)temp.image.getHeight(null);
-
-                g2d.drawImage(temp.image, temp.x, temp.y,(int)(temp.image.getWidth(null) * newratio), (int)(temp.image.getHeight(null) * newratio), null);
-            }*/
-
-
-        }
-
-        @Override
-        public void paintComponent(Graphics g) {
-
-            super.paintComponent(g);
-            doDrawing(g);
-        }
-
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            //System.out.println(e.toString());
-            repaint();
-        }
-    }
-
-    public static class MainWindow extends JFrame {
-
-        public Surface surface;
-
-        public MainWindow(String title, int x, int y) {
-
-            initUI(title, x, y);
-        }
-
-        private void initUI(String title, int x, int y) {
-
-            surface = new Surface(this);
-            add(surface);
-
-
-            addWindowListener(new WindowAdapter() {
-                @Override
-                public void windowClosing(WindowEvent e) {
-                    Timer timer = surface.getTimer();
-                    timer.stop();
-                }
-            });
-
-            setTitle(title);
-            setSize(x, y);
-            setLocationRelativeTo(null);
-            setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            setResizable(false);
-        }
-
-    }
-
-
+	}
 
 }
