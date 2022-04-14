@@ -34,6 +34,8 @@ public class Main {
 
 		puts("TESTING: " + file.GetConfigValueString("Settings.test"));
 
+		//puts("TESTING 2: " + file.GetConfigValueString("Settings.Test[$Settings.Test[0][1]][a]"));
+
 		/*
 		EventQueue.invokeLater(new Runnable() {
 			@Override
@@ -51,7 +53,7 @@ public class Main {
 
 		window.setVisible(true);
 
-		System.out.println("A");
+		puts("A");
 
 		Scene title = new Scene();
 
@@ -102,17 +104,18 @@ public class Main {
 				10, 100, 50, 2, Color.gray
 			);
 			title.objects.add(button);
+		}
 		*/
 		{
 			ButtonObject button = new ButtonObject(
 				name("Play"),
-				topLeftPos(new Point(100, 50)),
-				size(new Size(600, 300)),
-				layerOrder(20),
+				topLeftPos(new Point(600, 300)),
+				size(new Size(100, 50)),
+				layerOrder(2),
 				label("This is a Button!\nNewline?"),
 				bgColor(Color.CYAN),
-				textSize(10),
-				textColor(Color.gray),
+				textSize(20),
+				textColor(Color.black),
 				thickness(2)
 			);
 

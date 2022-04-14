@@ -36,23 +36,19 @@ public class ConfigFile {
 		PrintTokens(objectList);
 	}
 
-	public ConfigVariableObjectType GetConfigValue(String configPath, boolean resolveReference)
-	{
+	public ConfigVariableObjectType GetConfigValue(String configPath, boolean resolveReference) throws Exception {
 		return GetValue(configPath, objectList, resolveReference);
 	}
 
-	public ConfigVariableObjectType GetConfigValue(String configPath)
-	{
+	public ConfigVariableObjectType GetConfigValue(String configPath) throws Exception {
 		return GetValue(configPath, objectList, true);
 	}
 
-	public String GetConfigValueString(String configPath, boolean resolveReference)
-	{
+	public String GetConfigValueString(String configPath, boolean resolveReference) throws Exception {
 		return GetValue(configPath, objectList, resolveReference).toString();
 	}
 
-	public String GetConfigValueString(String configPath)
-	{
+	public String GetConfigValueString(String configPath) throws Exception {
 		return GetValue(configPath, objectList, true).genericToString();
 	}
 

@@ -14,6 +14,7 @@ import java.util.List;
 import com.marcel.RACF.ConfigErrors.*;
 
 import static com.marcel.RACF.ConfigTokens.*;
+import static com.marcel.Util.isInteger;
 import static com.marcel.Util.puts;
 
 public class ConfigReader {
@@ -41,27 +42,190 @@ public class ConfigReader {
 		return ReadConfigString(strData);
 	}
 
-	private static ConfigLabelObject FindLabel(String name, List<ConfigObject> objectList)
+	private static ConfigObject FindObject(String name, List<ConfigObject> objectList)
 	{
 		for (ConfigObject obj : objectList)
-			if (obj instanceof	ConfigLabelObject)
-				return (ConfigLabelObject) obj;
+			if (obj instanceof ConfigLabelObject)
+				if (((ConfigLabelObject) obj).label.equals(name))
+					return obj;
+				else if (obj instanceof ConfigVariableObject)
+					if (((ConfigVariableObject) obj).name.equals(name))
+						return obj;
 
 		return null;
 	}
 
-	private static ConfigLabelObject FindLabel(String name, ConfigObject[] objectList)
+	private static ConfigObject FindObject(String name, ConfigObject[] objectList)
 	{
+		//puts("Finding \"" + name + "\" in <" + objectList + ">");
 		for (ConfigObject obj : objectList)
-			if (obj instanceof	ConfigLabelObject)
-				return (ConfigLabelObject) obj;
+		{
+			if (obj instanceof ConfigLabelObject)
+			{
+				if (((ConfigLabelObject) obj).label.equals(name))
+					return obj;
+			}
+			else if (obj instanceof ConfigVariableObject)
+			{
+				if (((ConfigVariableObject) obj).name.equals(name))
+					return obj;
+			}
+		}
 
 		return null;
 	}
 
-	public static ConfigVariableObjectType GetValue(String configPath, List<ConfigObject> objectList, boolean resolveReference)
+
+
+	private static ConfigVariableObject GetVarFromDictUsingName(String name, ConfigVariableDictionary dict)
 	{
-		String[] parts = configPath.split(java.util.regex.Pattern.quote("."));
+		for (ConfigVariableObject obj : dict.values)
+			if (obj.name.equals(name))
+				return obj;
+
+		return null;
+	}
+
+
+	public static ConfigVariableObjectType GetValue(String configPath, List<ConfigObject> objectList, boolean resolveReference) throws Exception {
+
+		ConfigObject object = new ConfigLabelObject("", objectList.toArray(new ConfigObject[0]));
+
+		//puts("AAAA: " + configPath);
+
+		String temp = "";
+		for (int i = 0; i < configPath.length(); i++)
+		{
+			char chr = configPath.charAt(i);
+			if (chr == '.')
+			{
+				//puts("B: " + temp);
+				object = FindObject(temp, ((ConfigLabelObject)object).objects);
+				temp = "";
+			}
+			else if (chr == '[')
+			{
+				if (!temp.isEmpty())
+				{
+					object = FindObject(temp, ((ConfigLabelObject)object).objects);
+					temp = "";
+				}
+				i++;
+				int start = i;
+				int layer = 1;
+				while (layer != 0)
+				{
+					if (i >= configPath.length())
+						throw new UnterminatedLabelHeadException("] was not found!", GetContext(configPath, i-1));
+
+					chr = configPath.charAt(i);
+
+					if (chr == '[')
+						layer++;
+					else if (chr == ']')
+						layer--;
+					if (layer == 0)
+						break;
+					i++;
+				}
+
+				String data = configPath.substring(start, i);
+
+				while (data.startsWith("$"))
+					data = GetValue(data.substring(1), objectList, true).genericToString();
+
+				
+				if (isInteger(data))
+				{
+					//puts("TYPE:" + object.toString());
+					int index = Integer.parseInt(data);
+					if (object instanceof ConfigVariableObject)
+					{
+						if (((ConfigVariableObject)object).variable instanceof ConfigVariableArray)
+						{
+							ConfigVariableArray arr = (ConfigVariableArray) ((ConfigVariableObject)object).variable;
+
+							if (index < 0 || index >= arr.values.length)
+								throw new Exception("Index was out of Bounds!");
+
+							object = arr.values[index];
+						}
+						else
+						{
+							throw  new Exception("Object is not an Array!");
+						}
+					}
+					else if (object instanceof ConfigVariableArray)
+					{
+						ConfigVariableArray arr = (ConfigVariableArray) object;
+
+						if (index < 0 || index >= arr.values.length)
+							throw new Exception("Index was out of Bounds!");
+
+						object = arr.values[index];
+					}
+					else
+					{
+						throw  new Exception("Object is not an Variable");
+					}
+				}
+				else
+				{
+					if (object instanceof ConfigVariableObject)
+					{
+						int index = Integer.parseInt(data);
+						if (((ConfigVariableObject)object).variable instanceof ConfigVariableDictionary)
+						{
+							ConfigVariableDictionary dict = (ConfigVariableDictionary) ((ConfigVariableObject)object).variable;
+
+							ConfigVariableObject obj = GetVarFromDictUsingName(data, dict);
+
+							if (obj == null)
+								throw new Exception("Variable wasn't found!");
+
+							object = obj;
+						}
+						else
+						{
+							throw  new Exception("Object is not a Dictionary!");
+						}
+					}
+					else if (object instanceof ConfigVariableDictionary)
+					{
+						ConfigVariableDictionary dict = (ConfigVariableDictionary) object;
+
+						ConfigVariableObject obj = GetVarFromDictUsingName(data, dict);
+
+						if (obj == null)
+							throw new Exception("Variable wasn't found!");
+
+						object = obj;
+					}
+					else
+					{
+						throw  new Exception("Object is not an Variable");
+					}
+				}
+			}
+			else
+				temp += chr;
+		}
+
+		//puts("AA: " + temp);
+
+		if (!temp.isEmpty())
+			object = FindObject(temp, ((ConfigLabelObject)object).objects);
+
+		if (object instanceof  ConfigVariableObject)
+			object = ((ConfigVariableObject)object).variable;
+
+		return (ConfigVariableObjectType) object;
+
+
+
+		/*String[] parts = configPath.split(java.util.regex.Pattern.quote("."));
+
+
 
 		ConfigLabelObject currentLabel = FindLabel(parts[0], objectList);
 
@@ -82,7 +246,7 @@ public class ConfigReader {
 					var = GetValue((((ConfigVariableReference)var).variableName), objectList, true);
 
 		// Potentially add indexing!
-		return var;
+		return var;*/
 	}
 
 	private static String GetContext(String data, int cursorPosition)

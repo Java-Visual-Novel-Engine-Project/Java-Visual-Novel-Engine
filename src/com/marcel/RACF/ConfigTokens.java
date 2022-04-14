@@ -27,7 +27,7 @@ public class ConfigTokens {
 		}
 	}
 
-	public static class ConfigVariableObjectType {
+	public static class ConfigVariableObjectType extends ConfigObject{
 		@Override
 		public String toString() {
 			if (this instanceof ConfigVariableString)
