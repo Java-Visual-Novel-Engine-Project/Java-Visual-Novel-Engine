@@ -85,11 +85,33 @@ public class VNWindow {
 			return timer;
 		}
 
+		private FontMetrics SetFontAndGetMetrics(
+				Graphics2D g2d, String fontName, int fontSize, boolean isBold, boolean isItalic
+		) throws Exception
+		{
+				int fontSetting = 0;
+
+				if (isBold) fontSetting |= Font.BOLD;
+				if (isItalic) fontSetting |= Font.ITALIC;
+
+				Font font = new Font(fontName, fontSetting, fontSize);
+
+				g2d.setFont(font);
+
+				FontMetrics metrics = getFontMetrics(font);
+
+				return metrics;
+		}
+
 		public void RenderString(
-				String text, Point topLeft, Point bottomRight,
+				String text, String fontName, int fontSize,
+				Point topLeft, Point bottomRight,
 				FontMetrics metrics, Graphics2D g2d
 		) throws Exception
 		{
+			boolean bold = false;
+			boolean italic = false;
+
 			int start_x = topLeft.x;
 			int start_y = topLeft.y;
 
@@ -169,7 +191,15 @@ public class VNWindow {
 						value = tmp.substring(1, tmp.length()-1);
 					}
 
-					puts("INSIDE: " + property + " - " + value);
+					if (property.equals("b") || property.equals("bold"))
+						bold = value.equals("true");
+
+					if (property.equals("i") || property.equals("italic"))
+						italic = value.equals("true");
+
+				  metrics = SetFontAndGetMetrics(g2d, fontName, fontSize, bold, italic);
+
+					//puts("INSIDE: " + property + " - " + value);
 
 					i = closingBracket;
 				}
@@ -187,7 +217,6 @@ public class VNWindow {
 			}
 		}
 
-
 		private void RenderObject(SceneObject object, Graphics2D g2d) throws Exception
 		{
 			if (object instanceof ImageObject)
@@ -198,11 +227,7 @@ public class VNWindow {
 			}
 			else if (object instanceof	ButtonObject obj)
 			{
-				Font font = new Font(obj.fontName, 0, (int) obj.textSize);
-
-				g2d.setFont(font);
-
-				FontMetrics metrics = getFontMetrics(font);
+				FontMetrics metrics = SetFontAndGetMetrics(g2d, obj.fontName, obj.fontSize, false, false);
 
 				int w = metrics.stringWidth("  "); // metrics.stringWidth(" " + obj.label + " ");
 				int h = (int) (metrics.getHeight() * 1.5);
@@ -266,10 +291,8 @@ public class VNWindow {
 					w += max_x;
 				}
 
-
 				obj.center.x = w/2;
 				obj.center.y = h/2;
-
 
 				g2d.setColor(obj.bgColor);
 				g2d.fillRect(obj.topLeftPos.x, obj.topLeftPos.y, w, h);
@@ -310,9 +333,9 @@ public class VNWindow {
 				);
 
 				if (obj.enforceDimensions)
-					RenderString(obj.label, tl, br, metrics, g2d);
+					RenderString(obj.label, obj.fontName, obj.fontSize, tl, br, metrics, g2d);
 				else
-					RenderString(obj.label, tl, null, metrics, g2d);
+					RenderString(obj.label, obj.fontName, obj.fontSize, tl, null, metrics, g2d);
 
 
 			}

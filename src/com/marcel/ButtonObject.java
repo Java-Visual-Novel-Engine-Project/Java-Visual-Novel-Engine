@@ -12,7 +12,7 @@ class ButtonObject extends SceneObject
     {
         enum Names {
             NAME, TOP_LEFT_POS, SIZE, LAYER_ORDER, LABEL, FONT_NAME,
-            BG_COLOR, TEXT_SIZE, TEXT_COLOR, BORDER_COLOR,
+            BG_COLOR, FONT_SIZE, TEXT_COLOR, BORDER_COLOR,
             SELECTED_BORDER_COLOR, THICKNESS, ENFORCE_DIMENSIONS
         }
 
@@ -22,8 +22,8 @@ class ButtonObject extends SceneObject
         public static Param layerOrder(int layerOrder)     { return param(LAYER_ORDER, layerOrder); }
         public static Param label(String label)            { return param(LABEL, label); }
         public static Param fontName(String fontName)      { return param(FONT_NAME, fontName); }
+        public static Param fontSize(int fontSize)         { return param(FONT_SIZE, fontSize); }
         public static Param bgColor(Color bgColor)         { return param(BG_COLOR, bgColor); }
-        public static Param textSize(double textSize)      { return param(TEXT_SIZE, textSize); }
         public static Param textColor(Color textColor)     { return param(TEXT_COLOR, textColor); }
         public static Param borderColor(Color borderColor) { return param(BORDER_COLOR, borderColor); }
         public static Param selectedBorderColor(Color selectedBorderColor) { return param(SELECTED_BORDER_COLOR, selectedBorderColor); }
@@ -39,7 +39,7 @@ class ButtonObject extends SceneObject
 
     public Color bgColor;
 
-    public double textSize;
+    public int fontSize;
     public Color textColor;
     public Color borderColor;
     public Color selectedBorderColor;
@@ -59,7 +59,7 @@ class ButtonObject extends SceneObject
         this.label = getParam(params, LABEL, "");
         this.fontName = getParam(params, FONT_NAME, "Courier New");
         this.bgColor = getParam(params, BG_COLOR, Color.WHITE);
-        this.textSize = getParam(params, TEXT_SIZE, 20.0);
+        this.fontSize = getParam(params, FONT_SIZE, 20);
         this.textColor =  getParam(params, TEXT_COLOR, Color.black);
         this.borderColor =  getParam(params, BORDER_COLOR, Color.black);
         this.selectedBorderColor =  getParam(params, SELECTED_BORDER_COLOR, Color.MAGENTA);

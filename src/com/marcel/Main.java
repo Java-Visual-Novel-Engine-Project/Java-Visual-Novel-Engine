@@ -120,7 +120,7 @@ public class Main {
 					),
 					bgColor(Color.RED),
 					borderColor(Color.GREEN),
-					textSize(30),
+					fontSize(30),
 					textColor(Color.black),
 					thickness(4)
 			);
@@ -136,7 +136,7 @@ public class Main {
 					layerOrder(2),
 					label("B r u h\n2221"),
 					bgColor(Color.BLACK),
-					textSize(40),
+					fontSize(40),
 					textColor(Color.white),
 					borderColor(Color.yellow),
 					enforceDimensions(false),
@@ -161,7 +161,7 @@ public class Main {
 				layerOrder(2),
 				label("This is a Button!\nNewline?"),
 				bgColor(Color.CYAN),
-				textSize(20),
+				fontSize(20),
 				textColor(Color.black),
 				thickness(3)
 			);
