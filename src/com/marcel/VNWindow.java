@@ -85,7 +85,11 @@ public class VNWindow {
 			return timer;
 		}
 
-		public void RenderString(String text, Point topLeft, Point bottomRight, FontMetrics metrics, Graphics2D g2d) throws Exception {
+		public void RenderString(
+				String text, Point topLeft, Point bottomRight,
+				FontMetrics metrics, Graphics2D g2d
+		) throws Exception
+		{
 			int start_x = topLeft.x;
 			int start_y = topLeft.y;
 
@@ -107,6 +111,7 @@ public class VNWindow {
 						throw new Exception("Escape Sequence out of bounds!");
 
 					chr = text.charAt(i+1);
+
 					if (chr == 'n')
 					{
 						x = start_x;
@@ -133,12 +138,38 @@ public class VNWindow {
 						throw new Exception("Thing doesn't close: " + text);
 
 					String inside = text.substring(i + 1, closingBracket);
-					//puts("INSIDE: " + inside);
 
+					String property = "", value = "";
+					//["b", "bold", ]
 
+					// Simple text (i.e. <b>, </i>)
+					if (inside.indexOf(':') == -1) {
 
+						// value has to be false
+						if (inside.startsWith("/")) {
+							property = inside.substring(1);
+							value = "false";
 
+						// value has to be true
+						} else {
+							property = inside;
+							value = "true";
+						}
 
+					// Adv text
+					} else {
+
+						property = inside.substring(0, inside.indexOf(":")).trim();
+
+						String tmp = inside.substring(inside.indexOf(":") + 1).trim();
+
+						if (!tmp.startsWith("'") || !tmp.endsWith("'"))
+							throw Exception("Property values must be in single quotes");
+
+						value = tmp.substring(1, tmp.length());
+					}
+
+					puts("INSIDE: " + property + " - " + value);
 
 					i = closingBracket;
 				}
@@ -157,25 +188,24 @@ public class VNWindow {
 		}
 
 
-		private void RenderObject(SceneObject object, Graphics2D g2d) throws Exception {
+		private void RenderObject(SceneObject object, Graphics2D g2d) throws Exception
+		{
 			if (object instanceof ImageObject)
 			{
 				ImageObject obj = (ImageObject) object;
 
 				g2d.drawImage(obj.image, obj.topLeftPos.x, obj.topLeftPos.y, obj.size.width, obj.size.height, null);
 			}
-			else if (object instanceof	ButtonObject)
+			else if (object instanceof	ButtonObject obj)
 			{
-				ButtonObject obj = (ButtonObject) object;
-
-				Font font = new Font("Courier New", 0,(int)obj.textSize);
+				Font font = new Font(obj.fontName, 0, (int) obj.textSize);
 
 				g2d.setFont(font);
 
 				FontMetrics metrics = getFontMetrics(font);
 
 				int w = metrics.stringWidth("  "); // metrics.stringWidth(" " + obj.label + " ");
-				int h = (int)(metrics.getHeight() * 1.5);
+				int h = (int) (metrics.getHeight() * 1.5);
 
 				if (obj.enforceDimensions)
 				{
@@ -254,6 +284,7 @@ public class VNWindow {
 					int y1 = obj.topLeftPos.y;
 					int x2 = w;
 					int y2 = h;
+
 					for (int i = 0; i < obj.thickness; i++)
 					{
 						g2d.drawRect(x1,y1, x2, y2);
@@ -268,8 +299,15 @@ public class VNWindow {
 
 				g2d.setColor(obj.textColor);
 
-				Point tl = new Point(obj.topLeftPos.x + metrics.charWidth(' '), obj.topLeftPos.y + metrics.getHeight());
-				Point br = new Point(obj.topLeftPos.x + (w - metrics.charWidth(' ')), obj.topLeftPos.y + (h - (int)(0.5 * metrics.getHeight())));
+				Point tl = new Point(
+					obj.topLeftPos.x + metrics.charWidth(' '),
+					obj.topLeftPos.y + metrics.getHeight()
+				);
+
+				Point br = new Point(
+					obj.topLeftPos.x + (w - metrics.charWidth(' ')),
+					obj.topLeftPos.y + (h - (int)(0.5 * metrics.getHeight()))
+				);
 
 				if (obj.enforceDimensions)
 					RenderString(obj.label, tl, br, metrics, g2d);

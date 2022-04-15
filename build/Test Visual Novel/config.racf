@@ -2,7 +2,7 @@
 {
 	test = "testing"
 	
-	test_string = "<b>Hello</b>, \nworld\<"
+	test_string = "<bold: 'true'>Hello</b>, \nworld\<"
 	
 	// hello i am a comment
 	/*Hello i am a comment*/
