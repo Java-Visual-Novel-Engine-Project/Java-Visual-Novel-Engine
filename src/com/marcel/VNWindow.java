@@ -225,7 +225,7 @@ public class VNWindow {
 
 				g2d.drawImage(obj.image, obj.topLeftPos.x, obj.topLeftPos.y, obj.size.width, obj.size.height, null);
 			}
-			else if (object instanceof	ButtonObject obj)
+			else if (object instanceof ButtonObject obj)
 			{
 				FontMetrics metrics = SetFontAndGetMetrics(g2d, obj.fontName, obj.fontSize, false, false);
 

@@ -211,7 +211,7 @@ public class ConfigReader {
 		if (!temp.isEmpty())
 			object = FindObject(temp, ((ConfigLabelObject)object).objects);
 
-		if (object instanceof  ConfigVariableObject)
+		if (object instanceof ConfigVariableObject)
 			object = ((ConfigVariableObject)object).variable;
 
 		return (ConfigVariableObjectType) object;

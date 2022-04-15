@@ -46,7 +46,7 @@ public class Scene {
         List<ButtonObject> buttons = new ArrayList<>();
 
         for (SceneObject obj: sceneObjects)
-            if (obj instanceof  ButtonObject button)
+            if (obj instanceof ButtonObject button)
                 buttons.add(button);
 
         if (buttons.size() == 0)
