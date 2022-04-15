@@ -7,30 +7,45 @@ import static com.marcel.Util.puts;
 
 public class Scene {
 
-    public List<SceneObject> objects;
+    public List<SceneObject> sceneObjects;
     public SceneObject selectedObject;
 
     public Scene()
     {
-        objects = new ArrayList<>();
+        sceneObjects = new ArrayList<SceneObject>();
         selectedObject = null;
     }
 
-    private double getDis(ButtonObject a, ButtonObject b)
+    private Point getCenter(ButtonObject button)
     {
-        Point centerA = new Point(a.topLeftPos.x + a.center.x, a.topLeftPos.y + a.center.y);
-        Point centerB = new Point(b.topLeftPos.x + b.center.x, b.topLeftPos.y + b.center.y);
+        Point btnTopLeftPos = button.topLeftPos;
+        Point btnCenterPos  = button.center;
 
-        return Math.sqrt((centerA.x-centerB.x)*(centerA.x-centerB.x) + (centerA.y-centerB.y)*(centerA.y-centerB.y));
+        return new Point(
+            btnTopLeftPos.x + btnCenterPos.x,
+            btnTopLeftPos.y + btnCenterPos.y
+        );
+    }
+
+    private double getDistance(ButtonObject a, ButtonObject b)
+    {
+        Point centerA = getCenter(a);
+        Point centerB = getCenter(b);
+
+        return Math.sqrt(
+            (centerA.x-centerB.x) * (centerA.x-centerB.x) +
+            (centerA.y-centerB.y) * (centerA.y-centerB.y)
+        );
     }
 
     public void changeSelectedButton(Point move)
     {
-        if (!(selectedObject instanceof ButtonObject selButton))
+        if (!(selectedObject instanceof ButtonObject selectedBtn))
             return;
 
         List<ButtonObject> buttons = new ArrayList<>();
-        for (SceneObject obj: objects)
+
+        for (SceneObject obj: sceneObjects)
             if (obj instanceof  ButtonObject button)
                 buttons.add(button);
 
@@ -39,22 +54,22 @@ public class Scene {
 
         //puts("DIR: " + move);
 
-        Point center = new Point(selButton.topLeftPos.x + selButton.center.x, selButton.topLeftPos.y + selButton.center.y);
+        Point center  = getCenter(selectedBtn);
         Point centerI = new Point(0,0);
 
-
         ButtonObject minButton = null;
+
         double minDistance = Double.POSITIVE_INFINITY;
 
         for (int i = 0; i < buttons.size(); i++)
         {
-            ButtonObject currentButton = buttons.get(i);
+            ButtonObject currentBtn = buttons.get(i);
 
-            if (currentButton == selButton)
+            if (currentBtn == selectedBtn)
                 continue;
 
-            centerI.x = currentButton.center.x + currentButton.topLeftPos.x;
-            centerI.y = currentButton.center.y + currentButton.topLeftPos.y;
+            centerI = getCenter(currentBtn);
+
             if (move.x != 0)
             {
                 double xdiff = Math.abs(centerI.x - center.x);
@@ -79,11 +94,12 @@ public class Scene {
                 //puts("OK 2");
 
 
-                double dis =  getDis(selButton, currentButton);
-                if (dis < minDistance)
+                double distance = getDistance(selectedBtn, currentBtn);
+
+                if (distance < minDistance)
                 {
-                    minButton = currentButton;
-                    minDistance = dis;
+                    minButton = currentBtn;
+                    minDistance = distance;
                     //puts("OK 3");
                 }
             }
@@ -106,12 +122,12 @@ public class Scene {
                         continue;
                 }
 
+                double distance = getDistance(selectedBtn, currentBtn);
 
-                double dis =  getDis(selButton, currentButton);
-                if (dis < minDistance)
+                if (distance < minDistance)
                 {
-                    minButton = currentButton;
-                    minDistance = dis;
+                    minButton = currentBtn;
+                    minDistance = distance;
                 }
             }
 

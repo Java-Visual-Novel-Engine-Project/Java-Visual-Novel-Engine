@@ -70,7 +70,7 @@ public class Main {
 				),
 				0, 0, -1
 			);
-			title.objects.add(image);
+			title.sceneObjects.add(image);
 		}
 
 		{
@@ -81,7 +81,7 @@ public class Main {
 				),
 				10, 0, 3
 			);
-			title.objects.add(image);
+			title.sceneObjects.add(image);
 			image.height = 100;
 			image.width = 200;
 		}
@@ -105,7 +105,7 @@ public class Main {
 				20, Color.CYAN, 600, 300,
 				10, 100, 50, 2, Color.gray
 			);
-			title.objects.add(button);
+			title.sceneObjects.add(button);
 		}
 		*/
 		{
@@ -122,7 +122,7 @@ public class Main {
 					thickness(4)
 			);
 
-			title.objects.add(button);
+			title.sceneObjects.add(button);
 		}
 
 		{
@@ -140,7 +140,7 @@ public class Main {
 					thickness(5)
 			);
 
-			title.objects.add(button);
+			title.sceneObjects.add(button);
 		}
 
 
@@ -158,7 +158,7 @@ public class Main {
 				thickness(3)
 			);
 
-			title.objects.add(button);
+			title.sceneObjects.add(button);
 
 			title.selectedObject = button;
 

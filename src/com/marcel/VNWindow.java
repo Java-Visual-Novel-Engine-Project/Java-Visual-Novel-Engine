@@ -246,7 +246,8 @@ public class VNWindow {
 				g2d.fillRect(0,0, w, h);
 
 				List<SceneObject> tempObjs = new ArrayList<>();
-				tempObjs.addAll(currentScene.objects);
+
+				tempObjs.addAll(currentScene.sceneObjects);
 
 				while (tempObjs.size() > 0)
 				{
