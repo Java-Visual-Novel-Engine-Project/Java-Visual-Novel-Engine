@@ -164,7 +164,7 @@ public class VNWindow {
 						String tmp = inside.substring(inside.indexOf(":") + 1).trim();
 
 						if (!tmp.startsWith("'") || !tmp.endsWith("'"))
-							throw Exception("Property values must be in single quotes");
+							throw new Exception("Property values must be in single quotes");
 
 						value = tmp.substring(1, tmp.length());
 					}
