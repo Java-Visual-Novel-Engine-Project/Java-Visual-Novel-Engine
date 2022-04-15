@@ -17,7 +17,7 @@
 	//Resolution IS value in $Internal_Settings_Data.Supported_Resolutions
 	
 	Skill = $ISD.SRe[0]
-	//Skill IS value in $Internal_Settings_Data.Supported_Skills
+	//Skill IS value in $ISD.Ssk
 	
 	age = 0
 	//age IS in range 0 100

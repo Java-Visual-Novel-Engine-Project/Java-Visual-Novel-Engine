@@ -1,6 +1,7 @@
 package com.marcel;
 
 import com.marcel.RACF.ConfigFile;
+import com.marcel.RACF.ConfigTokens;
 
 import java.awt.*;
 
@@ -114,7 +115,9 @@ public class Main {
 					topLeftPos(new Point(300, 100)),
 					size(new Size(100, 50)),
 					layerOrder(2),
-					label("Bruh"),
+					label(
+							((ConfigTokens.ConfigVariableString)file.GetConfigValue("Settings.test_string")).GetOriginalString()
+					),
 					bgColor(Color.RED),
 					borderColor(Color.GREEN),
 					textSize(30),
@@ -136,13 +139,18 @@ public class Main {
 					textSize(40),
 					textColor(Color.white),
 					borderColor(Color.yellow),
-					enforceDimensions(true),
+					enforceDimensions(false),
 					thickness(5)
 			);
 
 			title.sceneObjects.add(button);
 		}
 
+		{
+			ImageObject image = new ImageObject("IMAGEHHHHHHH",getPath(file.GetConfigValueString("Settings.Paths.Title_Background")), new Point(0, 0), -1);
+
+			title.sceneObjects.add(image);
+		}
 
 
 		{

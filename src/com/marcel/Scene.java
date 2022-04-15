@@ -134,13 +134,9 @@ public class Scene {
         }
 
         if (minButton != null)
-        {
             selectedObject = minButton;
-        }
-        else
-        {
-            puts("No Button found!");
-        }
+
+            //puts("No Button found!");
     }
 
 }

@@ -85,8 +85,7 @@ public class VNWindow {
 			return timer;
 		}
 
-		public void RenderString(String text, Point topLeft, Point bottomRight, FontMetrics metrics, Graphics2D g2d)
-		{
+		public void RenderString(String text, Point topLeft, Point bottomRight, FontMetrics metrics, Graphics2D g2d) throws Exception {
 			int start_x = topLeft.x;
 			int start_y = topLeft.y;
 
@@ -102,23 +101,63 @@ public class VNWindow {
 					x = start_x;
 					y += metrics.getHeight();
 				}
+				else if (chr == '\\')
+				{
+					if (i + 1 >= text.length())
+						throw new Exception("Escape Sequence out of bounds!");
+
+					chr = text.charAt(i+1);
+					if (chr == 'n')
+					{
+						x = start_x;
+						y += metrics.getHeight();
+					}
+					else
+					{
+						if (bottomRight == null)
+							g2d.drawString(chr + "", x, y);
+						else
+						{
+							if ((x + metrics.charWidth(chr)) <= bottomRight.x && y <= bottomRight.y)
+								g2d.drawString(chr + "", x, y);
+						}
+						x += metrics.charWidth(chr);
+					}
+					i++;
+					continue;
+				}
+				else if (chr == '<')
+				{
+					int closingBracket = text.indexOf('>', i);
+					if (closingBracket == -1)
+						throw new Exception("Thing doesn't close: " + text);
+
+					String inside = text.substring(i + 1, closingBracket);
+					//puts("INSIDE: " + inside);
+
+
+
+
+
+
+					i = closingBracket;
+				}
 				else
 				{
 					if (bottomRight == null)
 						g2d.drawString(chr + "", x, y);
 					else
-						{
-							if ((x + metrics.charWidth(chr)) <= bottomRight.x && y <= bottomRight.y)
-								g2d.drawString(chr + "", x, y);
-						}
+					{
+						if ((x + metrics.charWidth(chr)) <= bottomRight.x && y <= bottomRight.y)
+							g2d.drawString(chr + "", x, y);
+					}
 					x += metrics.charWidth(chr);
 				}
 			}
 		}
 
 
-		private void RenderObject(SceneObject object, Graphics2D g2d)
-		{
+		private void RenderObject(SceneObject object, Graphics2D g2d) throws Exception {
 			if (object instanceof ImageObject)
 			{
 				ImageObject obj = (ImageObject) object;
@@ -129,7 +168,7 @@ public class VNWindow {
 			{
 				ButtonObject obj = (ButtonObject) object;
 
-				Font font = new Font("Courier New", Font.BOLD,(int)obj.textSize);
+				Font font = new Font("Courier New", 0,(int)obj.textSize);
 
 				g2d.setFont(font);
 
@@ -157,6 +196,35 @@ public class VNWindow {
 								max_x = x;
 							x = 0;
 							h += metrics.getHeight();
+						}
+						else if (chr == '\\')
+						{
+							if (i + 1 >= obj.label.length())
+								throw new Exception("Escape Sequence out of bounds!");
+
+							chr = obj.label.charAt(i+1);
+							if (chr == 'n')
+							{
+								if (x > max_x)
+									max_x = x;
+								x = 0;
+								h += metrics.getHeight();
+							}
+							else
+								x += metrics.charWidth(chr);
+							i++;
+							continue;
+						}
+						else if (chr == '<')
+						{
+							int closingBracket = obj.label.indexOf('>', i);
+							if (closingBracket == -1)
+								throw new Exception("Thing doesn't close: " + obj.label);
+
+							String inside = obj.label.substring(i + 1, closingBracket);
+							//puts("INSIDE: " + inside);
+
+							i = closingBracket;
 						}
 						else
 						{
@@ -212,7 +280,7 @@ public class VNWindow {
 			}
 		}
 
-		private void doDrawing(Graphics g) {
+		private void doDrawing(Graphics g) throws Exception {
 
 			Graphics2D g2d = (Graphics2D) g;
 
@@ -286,7 +354,11 @@ public class VNWindow {
 		@Override
 		public void paintComponent(Graphics g) {
 			super.paintComponent(g);
-			doDrawing(g);
+			try {
+				doDrawing(g);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 
 		@Override

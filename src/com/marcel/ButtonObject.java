@@ -45,9 +45,9 @@ class ButtonObject extends SceneObject
 
     public ButtonObject(Param... params)
     {
-        this.name = getParam(params, NAME, null);
-        this.topLeftPos = getParam(params, TOP_LEFT_POS, null);
-        this.size = getParam(params, SIZE, null);
+        this.name = getParam(params, NAME, "");
+        this.topLeftPos = getParam(params, TOP_LEFT_POS, new Point(0,0));
+        this.size = getParam(params, SIZE, new Size(100,100));
         this.layerOrder = getParam(params, LAYER_ORDER, 0);
 
         this.label = getParam(params, LABEL, "");

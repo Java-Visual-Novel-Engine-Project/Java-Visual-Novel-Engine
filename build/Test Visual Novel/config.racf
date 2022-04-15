@@ -1,6 +1,18 @@
 [Settings]
 {
 	test = "testing"
+	
+	test_string = "<b>Hello</b>, \nworld\<"
+	
+	// hello i am a comment
+	/*Hello i am a comment*/
+	
+	(
+	aaaaaaaaaaaaaaaaaa
+	test2 = "fasdfasdfasd"
+	)
+
+	
 	//test2 = {bruh = 1, bruh_2 = "BRUUUUUUUUUUUUUUUH"}
 	
 	[Paths] // a
