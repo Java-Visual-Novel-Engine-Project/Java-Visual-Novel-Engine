@@ -166,7 +166,7 @@ public class VNWindow {
 						if (!tmp.startsWith("'") || !tmp.endsWith("'"))
 							throw new Exception("Property values must be in single quotes");
 
-						value = tmp.substring(1, tmp.length());
+						value = tmp.substring(1, tmp.length()-1);
 					}
 
 					puts("INSIDE: " + property + " - " + value);
