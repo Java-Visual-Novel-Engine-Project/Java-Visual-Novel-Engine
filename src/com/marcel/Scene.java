@@ -75,7 +75,7 @@ public class Scene {
                 double xdiff = Math.abs(centerI.x - center.x);
                 double ydiff = Math.abs(centerI.y - center.y);
 
-                if (ydiff > xdiff * 0.5)
+                if (ydiff > xdiff * 0.6)
                     continue;
 
                 //puts("OK 1");
@@ -108,7 +108,7 @@ public class Scene {
                 double xdiff = Math.abs(centerI.x - center.x);
                 double ydiff = Math.abs(centerI.y - center.y);
 
-                if (xdiff > ydiff * 0.5)
+                if (xdiff > ydiff * 0.6)
                     continue;
 
                 if (move.y == 1)

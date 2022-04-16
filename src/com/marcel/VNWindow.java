@@ -2,6 +2,9 @@ package com.marcel;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.font.FontRenderContext;
+import java.awt.font.GlyphVector;
+import java.lang.reflect.Field;
 import java.sql.Array;
 import java.util.*;
 import java.util.List;
@@ -9,6 +12,7 @@ import javax.swing.*;
 import javax.swing.Timer;
 import java.awt.FontMetrics;
 
+import static com.marcel.Util.parseHexBinary;
 import static com.marcel.Util.puts;
 
 
@@ -96,6 +100,8 @@ public class VNWindow {
 
 				Font font = new Font(fontName, fontSetting, fontSize);
 
+
+
 				g2d.setFont(font);
 
 				FontMetrics metrics = getFontMetrics(font);
@@ -103,17 +109,24 @@ public class VNWindow {
 				return metrics;
 		}
 
+		private int getCharHeight(Graphics2D g2, char chr)
+		{
+			FontRenderContext frc = g2.getFontRenderContext();
+			GlyphVector gv = g2.getFont().createGlyphVector(frc, chr+"");
+			return gv.getPixelBounds(null, 0, 0).height;
+		}
+
 		public void RenderString(
-				String text, String fontName, int fontSize,
-				Point topLeft, Point bottomRight,
+				String text, String fontName, int fontSize, Color textColor,
+				Point topLeftText, Rectangle boundary,
 				FontMetrics metrics, Graphics2D g2d
 		) throws Exception
 		{
 			boolean bold = false;
 			boolean italic = false;
 
-			int start_x = topLeft.x;
-			int start_y = topLeft.y;
+			int start_x = topLeftText.x;
+			int start_y = topLeftText.y;
 
 			int x = start_x;
 			int y = start_y;
@@ -141,11 +154,11 @@ public class VNWindow {
 					}
 					else
 					{
-						if (bottomRight == null)
+						if (boundary == null)
 							g2d.drawString(chr + "", x, y);
 						else
 						{
-							if ((x + metrics.charWidth(chr)) <= bottomRight.x && y <= bottomRight.y)
+							if ((x + metrics.charWidth(chr)) <= boundary.br.x && y <= boundary.br.y && x >= boundary.tl.x && (y-metrics.getHeight()) >= boundary.tl.y)
 								g2d.drawString(chr + "", x, y);
 						}
 						x += metrics.charWidth(chr);
@@ -197,7 +210,45 @@ public class VNWindow {
 					if (property.equals("i") || property.equals("italic"))
 						italic = value.equals("true");
 
-				  metrics = SetFontAndGetMetrics(g2d, fontName, fontSize, bold, italic);
+					if (property.equals("font-size") || property.equals("size"))
+						fontSize = Integer.parseInt(value);
+
+					if (property.equals("font-name") || property.equals("font"))
+						fontName = value;
+
+					if (property.equals("color"))
+					{
+						if (value.startsWith("#"))
+						{
+							if (value.length() == 7)
+							{
+								g2d.setColor(Color.decode(value));
+							}
+							else if (value.length() == 9)
+							{
+								byte[] data_ = parseHexBinary(value.substring(1));
+								int[] data = new int[4];
+								for (int ii = 0; ii < 4; ii++)
+									data[ii] = data_[ii] & 0xff;
+								//puts("AA: " + data[0] + " " + data[1] + " "+ data[2] + " "+ data[3]);
+								g2d.setColor(new Color(data[0]+0,data[1]+0,data[2]+0,data[3]+0));
+							}
+							else
+								throw new Exception("Unknown HEX Format (either #RRGGBB or #RRGGBBAA!");
+						}
+						else
+						{
+							try {
+								Field field = Class.forName("java.awt.Color").getField(value);
+								g2d.setColor((Color)field.get(null));
+							} catch (Exception e) {
+								throw new Exception("Unknown Number \"" + value + "\"!");
+							}
+						}
+
+					}
+
+				  	metrics = SetFontAndGetMetrics(g2d, fontName, fontSize, bold, italic);
 
 					//puts("INSIDE: " + property + " - " + value);
 
@@ -205,13 +256,30 @@ public class VNWindow {
 				}
 				else
 				{
-					if (bottomRight == null)
+					if (boundary == null)
 						g2d.drawString(chr + "", x, y);
 					else
 					{
-						if ((x + metrics.charWidth(chr)) <= bottomRight.x && y <= bottomRight.y)
+						if ((x + metrics.charWidth(chr)) <= boundary.br.x && y <= boundary.br.y && x >= boundary.tl.x && (y-getCharHeight(g2d, chr)) >= boundary.tl.y)
 							g2d.drawString(chr + "", x, y);
 					}
+
+/*					g2d.setColor(Color.BLUE);
+
+					{
+						int x2 = x + metrics.charWidth(chr);
+						int y2 = y - getCharHeight(g2d, chr);
+
+						g2d.drawLine(x,y,x,y2);
+						g2d.drawLine(x,y2,x2,y2);
+						g2d.drawLine(x2,y2,x2,y);
+						g2d.drawLine(x2,y,x,y);
+						g2d.drawLine(x,y,x2,y2);
+						g2d.drawLine(x2,y2,x,y);
+					}
+
+					g2d.setColor(textColor);*/
+
 					x += metrics.charWidth(chr);
 				}
 			}
@@ -229,28 +297,43 @@ public class VNWindow {
 			{
 				FontMetrics metrics = SetFontAndGetMetrics(g2d, obj.fontName, obj.fontSize, false, false);
 
-				int w = metrics.stringWidth("  "); // metrics.stringWidth(" " + obj.label + " ");
-				int h = (int) (metrics.getHeight() * 1.5);
+				//int w = metrics.stringWidth("  "); // metrics.stringWidth(" " + obj.label + " ");
+				//int h = (int) (metrics.getHeight() * 0.5);
+
+				Rectangle boundaries = new Rectangle(new Point(obj.topLeftPos.x, obj.topLeftPos.y), new Point(obj.topLeftPos.x, obj.topLeftPos.y));
+
+				Point tp = new Point(
+						obj.topLeftPos.x,// + metrics.charWidth(' '),
+						obj.topLeftPos.y
+				);
 
 				if (obj.enforceDimensions)
 				{
-					w = obj.size.width;
-					h = obj.size.height;
+					boundaries.br.x = boundaries.tl.x + obj.size.width;
+					boundaries.br.y = boundaries.tl.y + obj.size.height;
 				}
 				else
 				{
-					int x = 0;
-					int max_x = 0;
+					boolean bold = false, italic = false;
+					String fontName = obj.fontName;
+					int fontSize = obj.fontSize;
+
+					int startX = boundaries.tl.x;
+					int startY = boundaries.tl.y;
+
+					int x = startX;
+					int y = startY;
+
 					for (int i = 0; i < obj.label.length(); i++)
 					{
 						char chr = obj.label.charAt(i);
 
 						if (chr == '\n')
 						{
-							if (x > max_x)
-								max_x = x;
-							x = 0;
-							h += metrics.getHeight();
+							if (x > boundaries.br.x)
+								boundaries.br.x = x;
+							x = startX;
+							y += metrics.getHeight();
 						}
 						else if (chr == '\\')
 						{
@@ -260,42 +343,133 @@ public class VNWindow {
 							chr = obj.label.charAt(i+1);
 							if (chr == 'n')
 							{
-								if (x > max_x)
-									max_x = x;
-								x = 0;
-								h += metrics.getHeight();
+								if (x > boundaries.br.x)
+									boundaries.br.x = x;
+								x = startX;
+								y += metrics.getHeight();
 							}
-							else
+							else {
 								x += metrics.charWidth(chr);
+								if (y - getCharHeight(g2d, chr) < boundaries.tl.y)
+									boundaries.tl.y = y - getCharHeight(g2d, chr);
+								if (y > boundaries.br.y)
+									boundaries.br.y = y;
+							}
 							i++;
 							continue;
 						}
 						else if (chr == '<')
 						{
-							int closingBracket = obj.label.indexOf('>', i);
+							String text = obj.label;
+							int closingBracket = text.indexOf('>', i);
 							if (closingBracket == -1)
-								throw new Exception("Thing doesn't close: " + obj.label);
+								throw new Exception("Thing doesn't close: " + text);
 
-							String inside = obj.label.substring(i + 1, closingBracket);
-							//puts("INSIDE: " + inside);
+							String inside = text.substring(i + 1, closingBracket);
+
+							String property = "", value = "";
+							//["b", "bold", ]
+
+							// Simple text (i.e. <b>, </i>)
+							if (inside.indexOf(':') == -1) {
+
+								// value has to be false
+								if (inside.startsWith("/")) {
+									property = inside.substring(1);
+									value = "false";
+
+									// value has to be true
+								} else {
+									property = inside;
+									value = "true";
+								}
+
+								// Adv text
+							} else {
+
+								property = inside.substring(0, inside.indexOf(":")).trim();
+
+								String tmp = inside.substring(inside.indexOf(":") + 1).trim();
+
+								if (!tmp.startsWith("'") || !tmp.endsWith("'"))
+									throw new Exception("Property values must be in single quotes");
+
+								value = tmp.substring(1, tmp.length()-1);
+							}
+
+							if (property.equals("b") || property.equals("bold"))
+								bold = value.equals("true");
+
+							if (property.equals("i") || property.equals("italic"))
+								italic = value.equals("true");
+
+							if (property.equals("font-size") || property.equals("size"))
+								fontSize = Integer.parseInt(value);
+
+							if (property.equals("font-name") || property.equals("font"))
+								fontName = value;
+
+							metrics = SetFontAndGetMetrics(g2d, fontName, fontSize, bold, italic);
+
+							//puts("INSIDE: " + property + " - " + value);
 
 							i = closingBracket;
 						}
 						else
 						{
 							x += metrics.charWidth(chr);
+							if (y - getCharHeight(g2d, chr) < boundaries.tl.y)
+								boundaries.tl.y = y - getCharHeight(g2d, chr);
+							if (y > boundaries.br.y)
+								boundaries.br.y = y;
 						}
 					}
-					if (x > max_x)
-						max_x = x;
-					w += max_x;
+					if (x > boundaries.br.x)
+						boundaries.br.x = x;
+
+
+
+
+/*					{
+						y_diff = -min_y;
+						h += y_diff;
+						realTopLeft.y -= y_diff*1;
+					}*/
+					boundaries.tl.x -= 10;
+					boundaries.tl.y -= 10;
+					boundaries.br.x += 10;
+					boundaries.br.y += 10;
 				}
 
-				obj.center.x = w/2;
-				obj.center.y = h/2;
+				{
+					Point diff = new Point(
+							obj.topLeftPos.x - boundaries.tl.x,
+							obj.topLeftPos.y - boundaries.tl.y
+					);
+
+					boundaries.tl.x += diff.x;
+					boundaries.tl.y += diff.y;
+					boundaries.br.x += diff.x;
+					boundaries.br.y += diff.y;
+
+					tp.x += diff.x;
+					tp.y += diff.y;
+
+				}
+
+
+
+
+
+				obj.center.x = (boundaries.tl.x + boundaries.br.x)/2;
+				obj.center.y = (boundaries.tl.y + boundaries.br.y)/2;
 
 				g2d.setColor(obj.bgColor);
-				g2d.fillRect(obj.topLeftPos.x, obj.topLeftPos.y, w, h);
+
+				int w = (boundaries.br.x - boundaries.tl.x);
+				int h = (boundaries.br.y - boundaries.tl.y);
+
+				g2d.fillRect(boundaries.tl.x, boundaries.tl.y, w, h);
 
 				if (currentScene.selectedObject ==  obj)
 					g2d.setColor(obj.selectedBorderColor);
@@ -303,8 +477,8 @@ public class VNWindow {
 					g2d.setColor(obj.borderColor);
 
 				{
-					int x1 = obj.topLeftPos.x;
-					int y1 = obj.topLeftPos.y;
+					int x1 = boundaries.tl.x;
+					int y1 = boundaries.tl.y;
 					int x2 = w;
 					int y2 = h;
 
@@ -322,20 +496,12 @@ public class VNWindow {
 
 				g2d.setColor(obj.textColor);
 
-				Point tl = new Point(
-					obj.topLeftPos.x + metrics.charWidth(' '),
-					obj.topLeftPos.y + metrics.getHeight()
-				);
 
-				Point br = new Point(
-					obj.topLeftPos.x + (w - metrics.charWidth(' ')),
-					obj.topLeftPos.y + (h - (int)(0.5 * metrics.getHeight()))
-				);
 
 				if (obj.enforceDimensions)
-					RenderString(obj.label, obj.fontName, obj.fontSize, tl, br, metrics, g2d);
+					RenderString(obj.label, obj.fontName, obj.fontSize, obj.textColor, tp, boundaries, metrics, g2d);
 				else
-					RenderString(obj.label, obj.fontName, obj.fontSize, tl, null, metrics, g2d);
+					RenderString(obj.label, obj.fontName, obj.fontSize, obj.textColor, tp, null, metrics, g2d);
 
 
 			}
@@ -345,21 +511,9 @@ public class VNWindow {
 
 			Graphics2D g2d = (Graphics2D) g;
 
-			g2d.setPaint(Color.blue);
-
 			int w = getWidth();
 			int h = getHeight();
 
-			Random r = new Random();
-
-			for (int i = 0; i < 1; i++) {
-
-				int x = Math.abs(r.nextInt()) % w;
-				int y = Math.abs(r.nextInt()) % h;
-
-				g2d.drawLine(x, y, x, y);
-
-			}
 
 			// h / w
 			// x = w

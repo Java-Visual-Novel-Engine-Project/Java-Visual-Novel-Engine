@@ -2,7 +2,7 @@
 {
 	test = "testing"
 	
-	test_string = "<bold: 'true'>Hello</b>, \nworld\<"
+	test_string = "<bold: 'true'>Hello<size: '20'></b>, \n<font: 'Comic Sans MS'>w<size: '70'><color: '#00FFAA55'>or<color: 'black'><size: '20'>ld\<"
 	
 	// hello i am a comment
 	/*Hello i am a comment*/

@@ -162,7 +162,7 @@ public class Main {
 				label("This is a Button!\nNewline?"),
 				bgColor(Color.CYAN),
 				fontSize(20),
-				textColor(Color.black),
+				textColor(new Color(75, 0, 198, 168)), //#FFFFFF1
 				thickness(3)
 			);
 
