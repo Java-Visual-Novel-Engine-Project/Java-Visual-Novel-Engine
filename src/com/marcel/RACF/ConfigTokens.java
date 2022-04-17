@@ -1,6 +1,5 @@
 package com.marcel.RACF;
 
-import java.util.Dictionary;
 import java.util.List;
 
 public class ConfigTokens {
@@ -52,12 +51,11 @@ public class ConfigTokens {
 				sb.append("]");
 				return sb.toString();
 			}
-			else if (this instanceof ConfigVariableDictionary)
+			else if (this instanceof ConfigVariableDictionary dict)
 			{
 				StringBuilder sb = new StringBuilder();
 				sb.append("{");
 
-				ConfigVariableDictionary dict = ((ConfigVariableDictionary) this);
 				for (int i = 0; i < dict.values.size(); i++) {
 					sb.append(dict.values.get(i).name);
 					sb.append(" = ");
@@ -105,13 +103,11 @@ public class ConfigTokens {
 
 				return sb.toString();
 			}
-			else if (this instanceof ConfigVariableDictionary)
+			else if (this instanceof ConfigVariableDictionary dict)
 			{
 				StringBuilder sb = new StringBuilder();
 
 				sb.append("{");
-
-				ConfigVariableDictionary dict = ((ConfigVariableDictionary) this);
 
 				for (int i = 0; i < dict.values.size(); i++) {
 					sb.append(dict.values.get(i).name);

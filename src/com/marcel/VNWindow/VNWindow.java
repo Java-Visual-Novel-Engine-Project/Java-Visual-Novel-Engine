@@ -22,8 +22,7 @@ public class VNWindow {
 
 	public static class Surface extends JPanel implements ActionListener {
 
-		private final int DELAY = 20;
-		private JFrame frame;
+		private final JFrame frame;
 
 		public Scene currentScene;
 
@@ -49,7 +48,7 @@ public class VNWindow {
 		}
 		*/
 
-		private long startTime;
+		private final long startTime;
 		private long tempTime;
 		private int frameCount;
 		private double deltaTime;
@@ -91,8 +90,7 @@ public class VNWindow {
 
 		private FontMetrics SetFontAndGetMetrics(
 				Graphics2D g2d, String fontName, int fontSize, boolean isBold, boolean isItalic
-		) throws Exception
-		{
+		) {
 				int fontSetting = 0;
 
 				if (isBold) fontSetting |= Font.BOLD;
@@ -104,9 +102,7 @@ public class VNWindow {
 
 				g2d.setFont(font);
 
-				FontMetrics metrics = getFontMetrics(font);
-
-				return metrics;
+			return getFontMetrics(font);
 		}
 
 		private int getCharHeight(Graphics2D g2, char chr)
@@ -124,7 +120,7 @@ public class VNWindow {
 		) throws Exception
 		{
 			double elapsedTime = 0;
-
+			g2d.setColor(textColor);
 
 			boolean bold = false;
 			boolean italic = false;
@@ -169,7 +165,6 @@ public class VNWindow {
 						elapsedTime += (1 / speed);
 					}
 					i++;
-					continue;
 				}
 				else if (chr == '<')
 				{
@@ -179,7 +174,7 @@ public class VNWindow {
 
 					String inside = text.substring(i + 1, closingBracket);
 
-					String property = "", value = "";
+					String property, value;
 					//["b", "bold", ]
 
 					// Simple text (i.e. <b>, </i>)
@@ -240,7 +235,7 @@ public class VNWindow {
 								for (int ii = 0; ii < 4; ii++)
 									data[ii] = data_[ii] & 0xff;
 								//puts("AA: " + data[0] + " " + data[1] + " "+ data[2] + " "+ data[3]);
-								g2d.setColor(new Color(data[0]+0,data[1]+0,data[2]+0,data[3]+0));
+								g2d.setColor(new Color(data[0],data[1],data[2],data[3]));
 							}
 							else
 								throw new Exception("Unknown HEX Format (either #RRGGBB or #RRGGBBAA!");
@@ -296,9 +291,8 @@ public class VNWindow {
 
 		private void RenderObject(SceneObject object, Graphics2D g2d) throws Exception
 		{
-			if (object instanceof ImageObject)
+			if (object instanceof ImageObject obj)
 			{
-				ImageObject obj = (ImageObject) object;
 
 				g2d.drawImage(obj.image, obj.topLeftPos.x, obj.topLeftPos.y, obj.size.width, obj.size.height, null);
 			}
@@ -371,18 +365,16 @@ public class VNWindow {
 								elapsedTime += (1 / speed);
 							}
 							i++;
-							continue;
 						}
 						else if (chr == '<')
 						{
-							String text = text_;
-							int closingBracket = text.indexOf('>', i);
+							int closingBracket = text_.indexOf('>', i);
 							if (closingBracket == -1)
-								throw new Exception("Thing doesn't close: " + text);
+								throw new Exception("Thing doesn't close: " + text_);
 
-							String inside = text.substring(i + 1, closingBracket);
+							String inside = text_.substring(i + 1, closingBracket);
 
-							String property = "", value = "";
+							String property, value;
 							//["b", "bold", ]
 
 							// Simple text (i.e. <b>, </i>)
@@ -536,7 +528,7 @@ public class VNWindow {
 			deltaTime = (tempTime2 - tempTime) / 1000.0;
 			tempTime = tempTime2;
 			frameCount++;
-			fps = frameCount / ((tempTime2 - startTime) / 1000.0);
+			//fps = frameCount / ((tempTime2 - startTime) / 1000.0);
 			fps = 1 /deltaTime;
 		}
 
@@ -567,9 +559,7 @@ public class VNWindow {
 				g2d.setColor(Color.BLACK);
 				g2d.fillRect(0,0, w, h);
 
-				List<SceneObject> tempObjs = new ArrayList<>();
-
-				tempObjs.addAll(currentScene.sceneObjects);
+				List<SceneObject> tempObjs = new ArrayList<>(currentScene.sceneObjects);
 
 				while (tempObjs.size() > 0)
 				{

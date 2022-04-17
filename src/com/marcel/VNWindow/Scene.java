@@ -10,7 +10,7 @@ public class Scene {
 
     public Scene()
     {
-        sceneObjects = new ArrayList<SceneObject>();
+        sceneObjects = new ArrayList<>();
         selectedObject = null;
     }
 
@@ -59,17 +59,13 @@ public class Scene {
 
         double minDistance = Double.POSITIVE_INFINITY;
 
-        for (int i = 0; i < buttons.size(); i++)
-        {
-            ButtonObject currentBtn = buttons.get(i);
-
+        for (ButtonObject currentBtn : buttons) {
             if (currentBtn == selectedBtn)
                 continue;
 
             centerI = getCenter(currentBtn);
 
-            if (move.x != 0)
-            {
+            if (move.x != 0) {
                 double xdiff = Math.abs(centerI.x - center.x);
                 double ydiff = Math.abs(centerI.y - center.y);
 
@@ -78,34 +74,27 @@ public class Scene {
 
                 //puts("OK 1");
 
-                if (move.x == 1)
-                {
+                if (move.x == 1) {
                     if (centerI.x < center.x)
                         continue;
-                }
-                else
-                {
+                } else {
                     if (centerI.x > center.x)
                         continue;
                 }
 
                 //puts("OK 2");
             }
-            if (move.y != 0)
-            {
+            if (move.y != 0) {
                 double xdiff = Math.abs(centerI.x - center.x);
                 double ydiff = Math.abs(centerI.y - center.y);
 
                 if (xdiff > ydiff * 0.8)
                     continue;
 
-                if (move.y == 1)
-                {
+                if (move.y == 1) {
                     if (centerI.y < center.y)
                         continue;
-                }
-                else
-                {
+                } else {
                     if (centerI.y > center.y)
                         continue;
                 }
@@ -114,8 +103,7 @@ public class Scene {
 
             double distance = getDistance(selectedBtn, currentBtn);
 
-            if (distance < minDistance)
-            {
+            if (distance < minDistance) {
                 minButton = currentBtn;
                 minDistance = distance;
                 //puts("OK 3");

@@ -17,11 +17,6 @@ public class ConfigFile {
 		objectList = ReadConfigFile(filename);
 	}
 
-	public ConfigFile(List<ConfigObject> objectList)
-	{
-		this.objectList = objectList;
-	}
-
 	public void ReadFromFile(String filename) throws Exception {
 		objectList = ReadConfigFile(filename);
 	}

@@ -2,14 +2,6 @@ package com.marcel.RACF;
 
 public class ConfigErrors {
 
-	public static class TestError extends Exception
-	{
-		public TestError(String message)
-		{
-			super(message);
-		}
-	}
-
 	public static class UnterminatedStringException extends Exception
 	{
 		public UnterminatedStringException(String message, String context)

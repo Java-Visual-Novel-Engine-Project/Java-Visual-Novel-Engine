@@ -45,12 +45,18 @@ public class ConfigReader {
 	private static ConfigObject FindObject(String name, List<ConfigObject> objectList)
 	{
 		for (ConfigObject obj : objectList)
+		{
 			if (obj instanceof ConfigLabelObject)
+			{
 				if (((ConfigLabelObject) obj).label.equals(name))
 					return obj;
-				else if (obj instanceof ConfigVariableObject)
-					if (((ConfigVariableObject) obj).name.equals(name))
-						return obj;
+			}
+			else if (obj instanceof ConfigVariableObject)
+			{
+				if (((ConfigVariableObject) obj).name.equals(name))
+					return obj;
+			}
+		}
 
 		return null;
 	}
@@ -93,27 +99,27 @@ public class ConfigReader {
 
 		//puts("AAAA: " + configPath);
 
-		String temp = "";
+		StringBuilder temp = new StringBuilder();
 		for (int i = 0; i < configPath.length(); i++)
 		{
 			char chr = configPath.charAt(i);
 			if (chr == '.')
 			{
 				//puts("B: " + temp);
-				object = FindObject(temp, ((ConfigLabelObject)object).objects);
-				temp = "";
+				object = FindObject(temp.toString(), ((ConfigLabelObject)object).objects);
+				temp = new StringBuilder();
 			}
 			else if (chr == '[')
 			{
-				if (!temp.isEmpty())
+				if (temp.length() > 0)
 				{
-					object = FindObject(temp, ((ConfigLabelObject)object).objects);
-					temp = "";
+					object = FindObject(temp.toString(), ((ConfigLabelObject)object).objects);
+					temp = new StringBuilder();
 				}
 				i++;
 				int start = i;
 				int layer = 1;
-				while (layer != 0)
+				while (true)
 				{
 					if (i >= configPath.length())
 						throw new UnterminatedLabelHeadException("] was not found!", GetContext(configPath, i-1));
@@ -141,9 +147,8 @@ public class ConfigReader {
 					int index = Integer.parseInt(data);
 					if (object instanceof ConfigVariableObject)
 					{
-						if (((ConfigVariableObject)object).variable instanceof ConfigVariableArray)
+						if (((ConfigVariableObject) object).variable instanceof ConfigVariableArray arr)
 						{
-							ConfigVariableArray arr = (ConfigVariableArray) ((ConfigVariableObject)object).variable;
 
 							if (index < 0 || index >= arr.values.length)
 								throw new Exception("Index was out of Bounds!");
@@ -155,9 +160,8 @@ public class ConfigReader {
 							throw  new Exception("Object is not an Array!");
 						}
 					}
-					else if (object instanceof ConfigVariableArray)
+					else if (object instanceof ConfigVariableArray arr)
 					{
-						ConfigVariableArray arr = (ConfigVariableArray) object;
 
 						if (index < 0 || index >= arr.values.length)
 							throw new Exception("Index was out of Bounds!");
@@ -203,13 +207,13 @@ public class ConfigReader {
 				}
 			}
 			else
-				temp += chr;
+				temp.append(chr);
 		}
 
 		//puts("AA: " + temp);
 
-		if (!temp.isEmpty())
-			object = FindObject(temp, ((ConfigLabelObject)object).objects);
+		if (temp.length() > 0)
+			object = FindObject(temp.toString(), ((ConfigLabelObject)object).objects);
 
 		if (object instanceof ConfigVariableObject)
 			object = ((ConfigVariableObject)object).variable;

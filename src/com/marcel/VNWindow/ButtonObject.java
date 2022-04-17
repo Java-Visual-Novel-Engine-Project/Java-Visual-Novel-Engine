@@ -33,8 +33,6 @@ public class ButtonObject extends SceneObject
 
     }
 
-    public static HashMap<Point, ButtonObject> PosInstMap = new HashMap<Point, ButtonObject>();
-
     public TextDisplayer textDisp;
     public double textSpeed;
 
