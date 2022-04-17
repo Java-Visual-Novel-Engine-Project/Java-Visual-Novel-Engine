@@ -1,4 +1,4 @@
-package com.marcel;
+package com.marcel.VNWindow;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -8,7 +8,6 @@ import java.lang.reflect.Field;
 import java.util.*;
 import java.util.List;
 import javax.swing.*;
-import javax.swing.Timer;
 import java.awt.FontMetrics;
 
 // Java code to demonstrate
@@ -21,7 +20,7 @@ import static com.marcel.Util.parseHexBinary;
 
 public class VNWindow {
 
-	static class Surface extends JPanel implements ActionListener {
+	public static class Surface extends JPanel implements ActionListener {
 
 		private final int DELAY = 20;
 		private JFrame frame;

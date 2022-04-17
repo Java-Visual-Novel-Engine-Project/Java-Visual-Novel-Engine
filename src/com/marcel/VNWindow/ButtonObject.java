@@ -1,12 +1,12 @@
-package com.marcel;
+package com.marcel.VNWindow;
 
 import java.util.HashMap;
 import java.awt.Color;
 
-import static com.marcel.ButtonObject.ButtonParams.Names.*;
-import static com.marcel.Params.*;
+import static com.marcel.VNWindow.ButtonObject.ButtonParams.Names.*;
+import static com.marcel.VNWindow.Params.*;
 
-class ButtonObject extends SceneObject
+public class ButtonObject extends SceneObject
 {
     public static class ButtonParams
     {

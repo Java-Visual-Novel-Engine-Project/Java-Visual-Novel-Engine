@@ -2,13 +2,16 @@ package com.marcel;
 
 import com.marcel.RACF.ConfigFile;
 import com.marcel.RACF.ConfigTokens;
+import com.marcel.VNWindow.*;
+import com.marcel.VNWindow.Point;
+
 
 import java.awt.*;
 
 import static com.marcel.Util.getPath;
 import static com.marcel.Util.*;
 
-import static com.marcel.ButtonObject.ButtonParams.*;
+import static com.marcel.VNWindow.ButtonObject.ButtonParams.*;
 
 public class Main {
 

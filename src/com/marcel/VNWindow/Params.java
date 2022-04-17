@@ -1,4 +1,4 @@
-package com.marcel;
+package com.marcel.VNWindow;
 
 /**
  * Provides utility methods for creating and retrieving parameters.

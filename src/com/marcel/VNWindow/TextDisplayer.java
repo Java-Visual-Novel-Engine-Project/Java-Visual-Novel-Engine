@@ -1,4 +1,4 @@
-package com.marcel;
+package com.marcel.VNWindow;
 
 public class TextDisplayer {
 

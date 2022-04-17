@@ -1,4 +1,4 @@
-package com.marcel;
+package com.marcel.VNWindow;
 
 /**
  * An object wrapping the named parameter. This class can be used as it is

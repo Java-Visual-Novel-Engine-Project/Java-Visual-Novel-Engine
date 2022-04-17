@@ -1,9 +1,9 @@
-package com.marcel;
+package com.marcel.VNWindow;
 
 import java.awt.Image;
 import javax.swing.ImageIcon;
 
-class ImageObject extends SceneObject
+public class ImageObject extends SceneObject
 {
     public Image image;
 

@@ -1,9 +1,7 @@
-package com.marcel;
+package com.marcel.VNWindow;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.marcel.Util.puts;
 
 public class Scene {
 
@@ -55,7 +53,7 @@ public class Scene {
         //puts("DIR: " + move);
 
         Point center  = getCenter(selectedBtn);
-        Point centerI = new Point(0,0);
+        Point centerI;
 
         ButtonObject minButton = null;
 
@@ -75,7 +73,7 @@ public class Scene {
                 double xdiff = Math.abs(centerI.x - center.x);
                 double ydiff = Math.abs(centerI.y - center.y);
 
-                if (ydiff > xdiff * 0.6)
+                if (ydiff > xdiff * 0.8)
                     continue;
 
                 //puts("OK 1");
@@ -92,23 +90,13 @@ public class Scene {
                 }
 
                 //puts("OK 2");
-
-
-                double distance = getDistance(selectedBtn, currentBtn);
-
-                if (distance < minDistance)
-                {
-                    minButton = currentBtn;
-                    minDistance = distance;
-                    //puts("OK 3");
-                }
             }
             if (move.y != 0)
             {
                 double xdiff = Math.abs(centerI.x - center.x);
                 double ydiff = Math.abs(centerI.y - center.y);
 
-                if (xdiff > ydiff * 0.6)
+                if (xdiff > ydiff * 0.8)
                     continue;
 
                 if (move.y == 1)
@@ -121,16 +109,17 @@ public class Scene {
                     if (centerI.y > center.y)
                         continue;
                 }
-
-                double distance = getDistance(selectedBtn, currentBtn);
-
-                if (distance < minDistance)
-                {
-                    minButton = currentBtn;
-                    minDistance = distance;
-                }
             }
 
+
+            double distance = getDistance(selectedBtn, currentBtn);
+
+            if (distance < minDistance)
+            {
+                minButton = currentBtn;
+                minDistance = distance;
+                //puts("OK 3");
+            }
         }
 
         if (minButton != null)
