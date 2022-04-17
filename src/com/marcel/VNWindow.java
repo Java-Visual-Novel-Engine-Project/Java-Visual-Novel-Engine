@@ -24,7 +24,6 @@ public class VNWindow {
 	static class Surface extends JPanel implements ActionListener {
 
 		private final int DELAY = 20;
-		private Timer timer;
 		private JFrame frame;
 
 		public Scene currentScene;
@@ -53,12 +52,15 @@ public class VNWindow {
 
 		private long startTime;
 		private long tempTime;
+		private int frameCount;
 		private double deltaTime;
+		private double fps;
 
 		public Surface(JFrame frame) {
 			//imgs = new ArrayList<ImageData>();
 			this.frame = frame;
-			initTimer();
+			frameCount = 0;
+			fps = 0;
 			startTime = System.currentTimeMillis();
 			tempTime = System.currentTimeMillis();
 		}
@@ -87,16 +89,6 @@ public class VNWindow {
 		}
 		*/
 
-		private void initTimer() {
-
-			timer = new Timer(DELAY, this);
-			timer.start();
-		}
-
-		public Timer getTimer() {
-
-			return timer;
-		}
 
 		private FontMetrics SetFontAndGetMetrics(
 				Graphics2D g2d, String fontName, int fontSize, boolean isBold, boolean isItalic
@@ -538,11 +530,15 @@ public class VNWindow {
 			}
 		}
 
+
 		private void UpdateTime()
 		{
 			long tempTime2 = System.currentTimeMillis();
 			deltaTime = (tempTime2 - tempTime) / 1000.0;
 			tempTime = tempTime2;
+			frameCount++;
+			fps = frameCount / ((tempTime2 - startTime) / 1000.0);
+			fps = 1 /deltaTime;
 		}
 
 
@@ -555,6 +551,9 @@ public class VNWindow {
 			int w = getWidth();
 			int h = getHeight();
 
+			System.out.print("\r                                               \r" +
+							   "FPS: " + (Math.round(fps * 100) / 100.0)
+			);
 
 			// h / w
 			// x = w
@@ -654,8 +653,6 @@ public class VNWindow {
 			addWindowListener(new WindowAdapter() {
 				@Override
 				public void windowClosing(WindowEvent e) {
-					Timer timer = surface.getTimer();
-					timer.stop();
 				}
 			});
 

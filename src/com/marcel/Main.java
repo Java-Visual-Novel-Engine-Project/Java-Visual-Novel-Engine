@@ -184,6 +184,16 @@ public class Main {
 
 		//window.surface.AddImage("background", getPath(file.GetConfigValueString("Settings.Paths.Title_Background")));
 
+
+
+
+		while (true)
+		{
+			window.surface.repaint();
+			Thread.sleep(20);
+		}
+
+
 	}
 
 }
