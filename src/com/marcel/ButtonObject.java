@@ -11,7 +11,7 @@ class ButtonObject extends SceneObject
     public static class ButtonParams
     {
         enum Names {
-            NAME, TOP_LEFT_POS, SIZE, LAYER_ORDER, LABEL, FONT_NAME,
+            NAME, TOP_LEFT_POS, SIZE, LAYER_ORDER, LABEL, TEXT_SPEED, FONT_NAME,
             BG_COLOR, FONT_SIZE, TEXT_COLOR, BORDER_COLOR,
             SELECTED_BORDER_COLOR, THICKNESS, ENFORCE_DIMENSIONS
         }
@@ -21,6 +21,7 @@ class ButtonObject extends SceneObject
         public static Param size(Size size)                { return param(SIZE, size); }
         public static Param layerOrder(int layerOrder)     { return param(LAYER_ORDER, layerOrder); }
         public static Param label(String label)            { return param(LABEL, label); }
+        public static Param textSpeed(double speed) { return param(TEXT_SPEED, speed); }
         public static Param fontName(String fontName)      { return param(FONT_NAME, fontName); }
         public static Param fontSize(int fontSize)         { return param(FONT_SIZE, fontSize); }
         public static Param bgColor(Color bgColor)         { return param(BG_COLOR, bgColor); }
@@ -34,7 +35,9 @@ class ButtonObject extends SceneObject
 
     public static HashMap<Point, ButtonObject> PosInstMap = new HashMap<Point, ButtonObject>();
 
-    public String label;
+    public TextDisplayer textDisp;
+    public double textSpeed;
+
     public String fontName;
 
     public Color bgColor;
@@ -56,19 +59,26 @@ class ButtonObject extends SceneObject
         this.size = getParam(params, SIZE, new Size(100,100));
         this.layerOrder = getParam(params, LAYER_ORDER, 0);
 
-        this.label = getParam(params, LABEL, "");
+        this.textSpeed = getParam(params, TEXT_SPEED, Double.POSITIVE_INFINITY);
+        {
+            String text = getParam(params, LABEL, "");
+
+            this.textDisp = new TextDisplayer(text, textSpeed);
+        }
+
         this.fontName = getParam(params, FONT_NAME, "Courier New");
         this.bgColor = getParam(params, BG_COLOR, Color.WHITE);
         this.fontSize = getParam(params, FONT_SIZE, 20);
         this.textColor =  getParam(params, TEXT_COLOR, Color.black);
         this.borderColor =  getParam(params, BORDER_COLOR, Color.black);
-        this.selectedBorderColor =  getParam(params, SELECTED_BORDER_COLOR, Color.MAGENTA);
+        this.selectedBorderColor = getParam(params, SELECTED_BORDER_COLOR, Color.MAGENTA);
 
         this.thickness = getParam(params, THICKNESS, 1);
 
         this.enforceDimensions = getParam(params, ENFORCE_DIMENSIONS, false);
 
         this.center = new Point(topLeftPos.x, topLeftPos.y);
+
 
     }
 }

@@ -5,15 +5,18 @@ import java.awt.event.*;
 import java.awt.font.FontRenderContext;
 import java.awt.font.GlyphVector;
 import java.lang.reflect.Field;
-import java.sql.Array;
 import java.util.*;
 import java.util.List;
 import javax.swing.*;
 import javax.swing.Timer;
 import java.awt.FontMetrics;
 
+// Java code to demonstrate
+// getTime() function of Date class
+
+
+
 import static com.marcel.Util.parseHexBinary;
-import static com.marcel.Util.puts;
 
 
 public class VNWindow {
@@ -48,10 +51,16 @@ public class VNWindow {
 		}
 		*/
 
+		private long startTime;
+		private long tempTime;
+		private double deltaTime;
+
 		public Surface(JFrame frame) {
 			//imgs = new ArrayList<ImageData>();
 			this.frame = frame;
 			initTimer();
+			startTime = System.currentTimeMillis();
+			tempTime = System.currentTimeMillis();
 		}
 
 		/*
@@ -119,9 +128,13 @@ public class VNWindow {
 		public void RenderString(
 				String text, String fontName, int fontSize, Color textColor,
 				Point topLeftText, Rectangle boundary,
-				FontMetrics metrics, Graphics2D g2d
+				FontMetrics metrics, Graphics2D g2d,
+				double speed, double maxTime
 		) throws Exception
 		{
+			double elapsedTime = 0;
+
+
 			boolean bold = false;
 			boolean italic = false;
 
@@ -131,7 +144,7 @@ public class VNWindow {
 			int x = start_x;
 			int y = start_y;
 
-			for (int i = 0; i < text.length(); i++)
+			for (int i = 0; i < text.length() && elapsedTime <= maxTime; i++)
 			{
 				char chr = text.charAt(i);
 
@@ -162,6 +175,7 @@ public class VNWindow {
 								g2d.drawString(chr + "", x, y);
 						}
 						x += metrics.charWidth(chr);
+						elapsedTime += (1 / speed);
 					}
 					i++;
 					continue;
@@ -198,10 +212,11 @@ public class VNWindow {
 
 						String tmp = inside.substring(inside.indexOf(":") + 1).trim();
 
-						if (!tmp.startsWith("'") || !tmp.endsWith("'"))
-							throw new Exception("Property values must be in single quotes");
-
-						value = tmp.substring(1, tmp.length()-1);
+						if (tmp.startsWith("'") && tmp.endsWith("'"))
+							value = tmp.substring(1, tmp.length()-1);
+						else
+							value = tmp;
+						//throw new Exception("Property values must be in single quotes");
 					}
 
 					if (property.equals("b") || property.equals("bold"))
@@ -215,6 +230,9 @@ public class VNWindow {
 
 					if (property.equals("font-name") || property.equals("font"))
 						fontName = value;
+
+					if (property.equals("speed"))
+						speed = Double.parseDouble(value);
 
 					if (property.equals("color"))
 					{
@@ -263,7 +281,7 @@ public class VNWindow {
 						if ((x + metrics.charWidth(chr)) <= boundary.br.x && y <= boundary.br.y && x >= boundary.tl.x && (y-getCharHeight(g2d, chr)) >= boundary.tl.y)
 							g2d.drawString(chr + "", x, y);
 					}
-
+					elapsedTime += (1 / speed);
 /*					g2d.setColor(Color.BLUE);
 
 					{
@@ -315,6 +333,9 @@ public class VNWindow {
 				else
 				{
 					boolean bold = false, italic = false;
+					double elapsedTime = 0;
+					double maxTime = obj.textDisp.passedTime;
+					double speed = obj.textDisp.speed;
 					String fontName = obj.fontName;
 					int fontSize = obj.fontSize;
 
@@ -324,9 +345,11 @@ public class VNWindow {
 					int x = startX;
 					int y = startY;
 
-					for (int i = 0; i < obj.label.length(); i++)
+					String text_ = obj.textDisp.text;
+
+					for (int i = 0; i < text_.length() && elapsedTime <= maxTime; i++)
 					{
-						char chr = obj.label.charAt(i);
+						char chr = text_.charAt(i);
 
 						if (chr == '\n')
 						{
@@ -337,10 +360,10 @@ public class VNWindow {
 						}
 						else if (chr == '\\')
 						{
-							if (i + 1 >= obj.label.length())
+							if (i + 1 >= text_.length())
 								throw new Exception("Escape Sequence out of bounds!");
 
-							chr = obj.label.charAt(i+1);
+							chr = text_.charAt(i+1);
 							if (chr == 'n')
 							{
 								if (x > boundaries.br.x)
@@ -354,13 +377,14 @@ public class VNWindow {
 									boundaries.tl.y = y - getCharHeight(g2d, chr);
 								if (y > boundaries.br.y)
 									boundaries.br.y = y;
+								elapsedTime += (1 / speed);
 							}
 							i++;
 							continue;
 						}
 						else if (chr == '<')
 						{
-							String text = obj.label;
+							String text = text_;
 							int closingBracket = text.indexOf('>', i);
 							if (closingBracket == -1)
 								throw new Exception("Thing doesn't close: " + text);
@@ -391,10 +415,13 @@ public class VNWindow {
 
 								String tmp = inside.substring(inside.indexOf(":") + 1).trim();
 
-								if (!tmp.startsWith("'") || !tmp.endsWith("'"))
-									throw new Exception("Property values must be in single quotes");
+								if (tmp.startsWith("'") && tmp.endsWith("'"))
+									value = tmp.substring(1, tmp.length()-1);
+								else
+									value = tmp;
+								//throw new Exception("Property values must be in single quotes");
 
-								value = tmp.substring(1, tmp.length()-1);
+
 							}
 
 							if (property.equals("b") || property.equals("bold"))
@@ -409,6 +436,9 @@ public class VNWindow {
 							if (property.equals("font-name") || property.equals("font"))
 								fontName = value;
 
+							if (property.equals("speed"))
+								speed = Double.parseDouble(value);
+
 							metrics = SetFontAndGetMetrics(g2d, fontName, fontSize, bold, italic);
 
 							//puts("INSIDE: " + property + " - " + value);
@@ -422,6 +452,7 @@ public class VNWindow {
 								boundaries.tl.y = y - getCharHeight(g2d, chr);
 							if (y > boundaries.br.y)
 								boundaries.br.y = y;
+							elapsedTime += (1 / speed);
 						}
 					}
 					if (x > boundaries.br.x)
@@ -499,17 +530,27 @@ public class VNWindow {
 
 
 				if (obj.enforceDimensions)
-					RenderString(obj.label, obj.fontName, obj.fontSize, obj.textColor, tp, boundaries, metrics, g2d);
+					RenderString(obj.textDisp.text, obj.fontName, obj.fontSize, obj.textColor, tp, boundaries, metrics, g2d, obj.textDisp.speed, obj.textDisp.passedTime);
 				else
-					RenderString(obj.label, obj.fontName, obj.fontSize, obj.textColor, tp, null, metrics, g2d);
+					RenderString(obj.textDisp.text, obj.fontName, obj.fontSize, obj.textColor, tp, null, metrics, g2d, obj.textDisp.speed, obj.textDisp.passedTime);
 
-
+				obj.textDisp.UpdateTime(deltaTime);
 			}
 		}
+
+		private void UpdateTime()
+		{
+			long tempTime2 = System.currentTimeMillis();
+			deltaTime = (tempTime2 - tempTime) / 1000.0;
+			tempTime = tempTime2;
+		}
+
 
 		private void doDrawing(Graphics g) throws Exception {
 
 			Graphics2D g2d = (Graphics2D) g;
+
+			UpdateTime();
 
 			int w = getWidth();
 			int h = getHeight();
