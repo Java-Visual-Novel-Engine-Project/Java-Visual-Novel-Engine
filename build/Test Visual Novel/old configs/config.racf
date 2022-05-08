@@ -38,6 +38,10 @@
 }
 
 /*
+[Settings]{[Paths]{Main_Scene_Path="Locations/Main Location/Main Scene" Test_Number=10.6 Test_Number_3=0.5 Test_Number_2=-5 Test_Boolean=true Test_Dictionary={test=1 test_2="depression" test_3={test=1, test_2=false test_3=-10.4}}Test_Array=[true 2 3 [1 "hello" {a="test" b=false} false], "bruh"]}[People]{Main_Person_Path=$Settings.Paths.Main_Scene_Path [temp]{pain=true lol=false}Testing="aaaaa" [temp2]{bruh=21 adam="bruh moment"}[temp3]{true=false false=true}}}
+*/
+
+/*
 a = "hello"
 b = 10
 c = 10.5
